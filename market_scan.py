@@ -17,6 +17,7 @@ HIST = "market_history.json"
 CAND = "fyb_candidates.json"
 KEEP = 15
 CODE_RE = re.compile(r"^[1-9]\d{3}$")
+MIN_TURNOVER = 3e8  # 成交值門檻（元）：首陰日／連板中當日低於此值不上榜（2026-08-03 拍板 3 億）
 
 def get(url):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -131,6 +132,8 @@ def scan(hist):
                 avg = sum(b[3] for b in bars[j-5:j]) / 5
                 if avg > 0:
                     vr = round(bars[j][3] / avg, 2)
+            if bars[j][2] * bars[j][3] < MIN_TURNOVER:
+                continue
             open2 = bars[j+1][1] if j + 1 < n else None
             days = n - 1 - j
             conds = [
@@ -150,6 +153,8 @@ def scan(hist):
                 "pend": sum(1 for c in conds if c["ok"] is None),
             })
         elif tail >= 2:
+            if bars[-1][2] * bars[-1][3] < MIN_TURNOVER:
+                continue
             items.append({"code": code, "name": st["n"], "market": st["m"], "state": "streak",
                           "tail": tail, "close": bars[-1][2]})
     items.sort(key=lambda x: (
@@ -176,14 +181,23 @@ def main():
                 time.sleep(2.5)
             d -= datetime.timedelta(days=1)
             tried += 1
+    elif today.isoformat() in hist["dates"]:
+        print(f"{today}: already in history, rescan only")
     else:
-        tw = twse_day(today)
+        try:
+            tw = twse_day(today)
+        except Exception as e:
+            tw = None
+            print(f"{today}: TWSE fetch failed ({e}), rescan with existing history")
         if tw:
-            tp = tpex_day(today) or {}
+            try:
+                tp = tpex_day(today) or {}
+            except Exception:
+                tp = {}
             tw.update(tp)
             merge_day(hist, today.isoformat(), tw)
             print(f"{today}: {len(tw)} stocks")
-        else:
+        elif tw is not None:
             print(f"{today}: no market data (holiday?)")
     with open(HIST, "w", encoding="utf-8") as f:
         json.dump(hist, f, ensure_ascii=False, separators=(",", ":"))
