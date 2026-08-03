@@ -6,7 +6,8 @@ worktree 在 ~/tw-stock-data-live（live 分支，orphan、只有 live.json）�
 import json, datetime, subprocess, sys, urllib.request
 from zoneinfo import ZoneInfo
 
-STOCKS = ["2881", "2887", "2891", "2883", "009816", "0056", "2303"]
+STOCKS = ["2881", "2887", "2891", "2883", "009816", "0056",
+          "2303", "2337", "00631L", "3231"]  # 前段持股、後段觀察
 WORKTREE = "/Users/lazymei/tw-stock-data-live"
 
 now = datetime.datetime.now(ZoneInfo("Asia/Taipei"))
