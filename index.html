@@ -198,6 +198,28 @@
     <div class="idx-grid" id="ledgerGrid"></div>
   </section>
 
+  <!-- 交易紀錄 -->
+  <section>
+    <div class="sec-head">
+      <h2>交易紀錄</h2>
+      <span class="rule-ref" id="tradeMeta">來自 ledger.json</span>
+    </div>
+    <div class="tbl-wrap">
+      <table id="tradeTbl">
+        <thead><tr><th>日期</th><th style="text-align:left">標的</th><th>動作</th><th>股數</th><th style="text-align:left">成交價</th><th>已實現損益</th><th style="text-align:left">備註</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p style="margin:10px 0 0;font-weight:700;font-size:14px">股息紀錄</p>
+    <div class="tbl-wrap" style="margin-top:6px">
+      <table id="divTbl" style="min-width:0">
+        <thead><tr><th style="text-align:left">標的</th><th>金額</th><th>狀態</th><th style="text-align:left">日期</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p style="margin:10px 0 0;font-size:12px;color:var(--sub)">新增或修正交易／股息：跟 Claude 說一聲，會同步更新帳本與這裡的數字。</p>
+  </section>
+
   <!-- 守則參數 -->
   <section>
     <div class="sec-head">
@@ -374,7 +396,7 @@
     holdings:[
       {name:'2881 富邦金',        qty:1000, cost:124.5, prev:130.0, price:130.00, vol:1.54, ma5:126.5, ma20:125.42, slp:118.3, tpp:128.2},
       {name:'2887 台新新光金',    qty:5000, cost:29.55, prev:35.95, price:35.95,  vol:1.57, ma5:34.12, ma20:34.94, slp:32.4,  tpp:null},
-      {name:'2891 中信金',        qty:1000, cost:66.7,  prev:64.9,  price:65,     vol:1.32, ma5:63.08, ma20:65.21, slp:60.7,  tpp:null},
+      {name:'2891 中信金',        qty:2000, cost:66.7,  prev:64.9,  price:65,     vol:1.32, ma5:63.08, ma20:65.21, slp:60.7,  tpp:null},
       {name:'2883 凱基金',        qty:1000, cost:30.29, prev:30.85, price:30.85,  vol:2.03, ma5:29.85, ma20:29.94, slp:28.78, tpp:31.20},
       {name:'009816 凱基台灣TOP50', qty:5000, cost:14.51, prev:14.65, price:14.65,  vol:1.03, ma5:14.01, ma20:14.8, slp:13.79, tpp:14.95},
       {name:'0056 元大高股息',    qty:2000, cost:49.07, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:50.54}
@@ -944,6 +966,34 @@
       +card('已實現價差', rt, (lg.trades||[]).length+' 筆賣出，含稅費')
       +card('股息', recv+pend, '已入帳 '+money(recv)+'、待領 '+money(pend));
     document.getElementById('ledgerMeta').textContent='ledger.json＋現價自動計算｜帳本更新 '+(lg.updated_at||'—');
+    renderTrades(lg);
+  }
+  function renderTrades(lg){
+    var tb=document.querySelector('#tradeTbl tbody'); if(!tb) return;
+    var trades=(lg.trades||[]).slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    tb.innerHTML = trades.length ? trades.map(function(t){
+      var r=t.realized, cls=(r==null)?'':(r>=0?'pl-pos':'pl-neg');
+      var rt=(r==null)?'—':((r>=0?'+':'−')+Math.abs(r).toLocaleString('en-US'));
+      var isBuy=(t.action||'').indexOf('買')>=0;
+      return '<tr><td class="num">'+esc(t.date||'')+'</td>'
+        +'<td style="text-align:left">'+esc(t.stock||'')+'</td>'
+        +'<td><span class="chip '+(isBuy?'flat':'warn')+'">'+esc(t.action||'')+'</span></td>'
+        +'<td class="num">'+(t.qty!=null?Number(t.qty).toLocaleString('en-US'):'—')+'</td>'
+        +'<td style="text-align:left" class="num">'+esc(String(t.price==null?'—':t.price))+'</td>'
+        +'<td class="num '+cls+'">'+rt+'</td>'
+        +'<td style="text-align:left;white-space:normal;color:var(--sub);font-size:12px">'+esc(t.note||'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="7" style="text-align:left;color:var(--sub)">尚無交易紀錄。</td></tr>';
+    document.getElementById('tradeMeta').textContent=trades.length+' 筆賣出紀錄｜已實現合計 '+((lg.realized_total||0)>=0?'+':'−')+Math.abs(lg.realized_total||0).toLocaleString('en-US');
+
+    var db=document.querySelector('#divTbl tbody'); if(!db) return;
+    var divs=(lg.dividends||[]);
+    db.innerHTML = divs.length ? divs.map(function(d){
+      var paid=(d.status==='已入帳');
+      return '<tr><td style="text-align:left">'+esc(d.stock||'')+'</td>'
+        +'<td class="num pl-pos">+'+Number(d.amount||0).toLocaleString('en-US')+'</td>'
+        +'<td><span class="chip '+(paid?'good':'flat')+'">'+esc(d.status||'')+'</span></td>'
+        +'<td style="text-align:left" class="num">'+esc(d.date||d.pay_date||'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="4" style="text-align:left;color:var(--sub)">尚無股息紀錄。</td></tr>';
   }
   function syncRepo(){
     setSync('同步中…');
