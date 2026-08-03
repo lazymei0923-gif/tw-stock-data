@@ -15,7 +15,22 @@ hm = now.hour * 60 + now.minute
 if now.weekday() >= 5 or not (9 * 60 <= hm <= 13 * 60 + 35):
     sys.exit(0)
 
-ex_ch = "|".join(f"tse_{s}.tw" for s in STOCKS)
+# 首陰反包候選（market 分支）也一併抓，上櫃用 otc_ 前綴
+extra = []
+try:
+    _req = urllib.request.Request(
+        "https://raw.githubusercontent.com/lazymei0923-gif/tw-stock-data/market/fyb_candidates.json",
+        headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(_req, timeout=15) as _r:
+        for it in json.load(_r).get("items", []):
+            if it["code"] not in STOCKS:
+                extra.append((it["code"], it["market"]))
+except Exception:
+    pass
+extra = extra[:24]
+
+ex_ch = "|".join([f"tse_{s}.tw" for s in STOCKS] +
+                 [f"{'otc' if m == 'otc' else 'tse'}_{c}.tw" for c, m in extra])
 url = f"https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch={ex_ch}&json=1&delay=0"
 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
 with urllib.request.urlopen(req, timeout=20) as r:

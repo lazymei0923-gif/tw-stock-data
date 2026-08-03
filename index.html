@@ -335,6 +335,14 @@
     </div>
     <div class="check-card">
       <p style="margin:0 0 10px;color:var(--sub);font-size:13px">全自動判定，無需填寫——資料來自 repo 近 15 日 K＋盤中即時價。五關：連續漲停≥2天 → 首陰跌≥5% → 首陰量比≥1.5 → 隔天開盤不破首陰收盤 → 首陰後 3 天內。</p>
+      <p style="margin:0 0 6px;font-weight:700">全市場候選榜（上市＋上櫃自動掃描） <span style="font-weight:400;color:var(--sub);font-size:12px" id="fybBoardMeta"></span></p>
+      <div class="tbl-wrap" style="margin-bottom:18px">
+        <table id="fybBoard" style="min-width:0">
+          <thead><tr><th>個股</th><th style="text-align:left">自動判定</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p style="margin:0 0 6px;font-weight:700">我的持股＋觀察名單</p>
       <div class="tbl-wrap">
         <table id="fybTbl" style="min-width:0">
           <thead><tr><th>個股</th><th style="text-align:left">自動判定</th></tr></thead>
@@ -710,7 +718,55 @@
   }
 
   /* ---------- 首陰反包（全自動判定） ---------- */
-  var lastDaily=null, lastLive=null;
+  var lastDaily=null, lastLive=null, lastCands=null;
+  function renderFybBoard(){
+    var tb=document.querySelector('#fybBoard tbody'); if(!tb) return;
+    tb.innerHTML='';
+    var meta=document.getElementById('fybBoardMeta');
+    if(!lastCands){ meta.textContent=''; tb.innerHTML='<tr><td colspan="2" style="text-align:left;color:var(--sub)">等 repo 資料同步（開頁數秒內）。</td></tr>'; return; }
+    var items=lastCands.items||[];
+    meta.textContent='資料日 '+(lastCands.asof||'—')+'｜候選 '+items.length+' 檔';
+    if(!items.length){ tb.innerHTML='<tr><td colspan="2" style="text-align:left;color:var(--sub)">目前無候選——出現「連續漲停 ≥2 天」的人氣股會自動列進來。</td></tr>'; return; }
+    var liveNew=lastLive&&lastCands.asof&&lastLive.date>lastCands.asof;
+    var shown=items.slice(0,30);
+    shown.forEach(function(it){
+      var q=(lastLive&&lastLive.quotes)?lastLive.quotes[it.code]:null, html='';
+      var nm=it.code+' '+it.name+(it.market==='otc'?'<span style="color:var(--sub);font-size:11px">（櫃）</span>':'');
+      if(it.state==='streak'){
+        html='<span class="chip warn">連 '+it.tail+' 板中——等首陰出現自動判定</span>';
+        if(liveNew&&q&&q.price!=null&&q.prev_close){
+          var c0=(q.price-q.prev_close)/q.prev_close*100;
+          html+='<span class="chip flat">今日 '+fmt(q.price)+'（'+(c0>=0?'+':'')+c0.toFixed(1)+'%）</span>';
+        }
+      }else{
+        var conds=it.conds.map(function(c){ return {k:c.k, ok:c.ok, why:c.why}; });
+        if(liveNew){
+          var days=it.days+1;
+          conds[4]={k:conds[4].k, ok:days<=3, why:'第 '+days+' 天'};
+          if(conds[3].ok===null&&q&&q.open!=null) conds[3]={k:conds[3].k, ok:q.open>=it.yinClose, why:'開 '+q.open+' vs 收 '+it.yinClose+'（即時）'};
+        }
+        var okN=0, pend=0;
+        var chips=conds.map(function(c){
+          if(c.ok===true) okN++;
+          if(c.ok===null) pend++;
+          return '<span class="chip '+(c.ok===null?'flat':(c.ok?'good':'bad'))+'">'+(c.ok===null?'…':(c.ok?'✓':'✕'))+' '+c.k+'（'+c.why+'）</span>';
+        }).join('');
+        var v;
+        if(okN===5) v='<span class="chip good" style="font-weight:700">★ 五關全過——成功率高</span>';
+        else if(okN+pend===5&&pend>0) v='<span class="chip warn">已過 '+okN+' 關、'+pend+' 關待確認</span>';
+        else v='<span class="chip flat">'+okN+'／5 關——缺一放掉</span>';
+        html=v+chips;
+      }
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+nm+'</td><td style="text-align:left;white-space:normal">'+html+'</td>';
+      tb.appendChild(tr);
+    });
+    if(items.length>shown.length){
+      var more=document.createElement('tr');
+      more.innerHTML='<td colspan="2" style="text-align:left;color:var(--sub);font-size:12px">…另有 '+(items.length-shown.length)+' 檔連板候選未展開</td>';
+      tb.appendChild(more);
+    }
+  }
   function fybEval(code){
     var d=(lastDaily&&lastDaily.stocks)?lastDaily.stocks[code]:null;
     if(!d||!d.history||d.history.length<7) return null;
@@ -753,6 +809,7 @@
     return {state:'yin', conds:conds};
   }
   function renderFyb(){
+    renderFybBoard();
     var tb=document.querySelector('#fybTbl tbody'); if(!tb) return;
     tb.innerHTML='';
     var seen={}, list=[];
@@ -860,11 +917,12 @@
     setSync('同步中…');
     var bust='?t='+Date.now();
     function grab(u){ return fetch(u).then(function(r){ if(!r.ok) throw 0; return r.json(); }).catch(function(){ return null; }); }
-    Promise.all([grab(RAW+'live/live.json'+bust), grab(RAW+'main/data.json'+bust), grab(RAW+'main/ledger.json'+bust)]).then(function(res){
+    Promise.all([grab(RAW+'live/live.json'+bust), grab(RAW+'main/data.json'+bust), grab(RAW+'main/ledger.json'+bust), grab(RAW+'market/fyb_candidates.json'+bust)]).then(function(res){
       var live=res[0]&&res[0].quotes?res[0]:null, daily=res[1];
       if(daily) lastDaily=daily;
       if(live) lastLive=live;
       if(res[2]) lastLedger=res[2];
+      if(res[3]) lastCands=res[3];
       if(!live&&!daily){ renderLedger(); setSync('讀不到 repo 資料——保留現有數字，5 分鐘後自動重試',true); return; }
       var n=applyRepo(live,daily);
       var snap=document.getElementById('snapDate');
