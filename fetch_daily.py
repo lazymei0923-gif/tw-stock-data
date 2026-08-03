@@ -2,7 +2,8 @@ import json, datetime, urllib.request
 
 # 持股清單（要加減股票改這裡）
 STOCKS = ["2881", "2887", "2891", "2883", "009816", "0056",
-          "2303", "2337", "00631L", "3231"]  # 前段持股、後段觀察
+          "2303", "2337", "00631L", "3231",
+          "2330", "3711", "6239", "3037", "8046", "3189", "6669", "2356", "3693"]  # 持股／觀察／AMD 供應鏈
 
 BASE = "https://api.finmindtrade.com/api/v4/data"
 start = (datetime.date.today() - datetime.timedelta(days=70)).isoformat()

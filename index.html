@@ -383,8 +383,18 @@
       {name:'2337 旺宏'},
       {name:'2303 聯電'},
       {name:'00631L 元大台灣50正2'},
-      {name:'3231 緯創'}
+      {name:'3231 緯創'},
+      {name:'2330 台積電'},
+      {name:'3711 日月光投控'},
+      {name:'6239 力成'},
+      {name:'3037 欣興'},
+      {name:'8046 南電'},
+      {name:'3189 景碩'},
+      {name:'6669 緯穎'},
+      {name:'2356 英業達'},
+      {name:'3693 營邦'}
     ],
+    watchlistVer:2,
     holdAsOf:'2026/08/03',
     settings:{sl:0, tp1:20, tp2:10}
   };
@@ -400,7 +410,14 @@
   try{ state = JSON.parse(localStorage.getItem(KEY)) || null; }catch(e){ state=null; }
   if(!state || !state.holdings){ state = JSON.parse(JSON.stringify(DEFAULTS)); }
   if(!state.settings){ state.settings = JSON.parse(JSON.stringify(DEFAULTS.settings)); }
-  if(!state.watchlist){ state.watchlist = JSON.parse(JSON.stringify(DEFAULTS.watchlist)); }
+  if(!state.watchlist){ state.watchlist = JSON.parse(JSON.stringify(DEFAULTS.watchlist)); state.watchlistVer=DEFAULTS.watchlistVer; }
+  if((state.watchlistVer||0) < DEFAULTS.watchlistVer){
+    DEFAULTS.watchlist.forEach(function(w){
+      var code=w.name.split(' ')[0];
+      if(!state.watchlist.some(function(x){ return (x.name||'').split(' ')[0]===code; })) state.watchlist.push({name:w.name});
+    });
+    state.watchlistVer=DEFAULTS.watchlistVer;
+  }
   /* tw-stock-data 2026-07-31 收盤：昨收/量比/MA5/MA20（只覆蓋市場欄位，保留手動的成本/股數/自訂價） */
   var MARKET={date:'2026-07-31', data:{
     '2881':{prev:130.0, vol:1.54, ma5:126.5, ma20:125.42},

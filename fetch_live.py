@@ -7,7 +7,9 @@ import json, datetime, subprocess, sys, urllib.request
 from zoneinfo import ZoneInfo
 
 STOCKS = ["2881", "2887", "2891", "2883", "009816", "0056",
-          "2303", "2337", "00631L", "3231"]  # 前段持股、後段觀察
+          "2303", "2337", "00631L", "3231",
+          "2330", "3711", "6239", "3037", "8046", "3189", "6669", "2356", "3693"]  # 持股／觀察／AMD 供應鏈
+OTC = {"3693"}  # STOCKS 中的上櫃代號（MIS 要用 otc_ 前綴）
 WORKTREE = "/Users/lazymei/tw-stock-data-live"
 
 now = datetime.datetime.now(ZoneInfo("Asia/Taipei"))
@@ -29,7 +31,7 @@ except Exception:
     pass
 extra = extra[:24]
 
-ex_ch = "|".join([f"tse_{s}.tw" for s in STOCKS] +
+ex_ch = "|".join([f"{'otc' if s in OTC else 'tse'}_{s}.tw" for s in STOCKS] +
                  [f"{'otc' if m == 'otc' else 'tse'}_{c}.tw" for c, m in extra])
 url = f"https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch={ex_ch}&json=1&delay=0"
 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
