@@ -863,6 +863,21 @@
   }
   /* ---------- repo 即時行情同步 ---------- */
   var RAW='https://raw.githubusercontent.com/lazymei0923-gif/tw-stock-data/';
+  var API='https://api.github.com/repos/lazymei0923-gif/tw-stock-data/contents/';
+  // live.json 每 5 分鐘更新，raw.githubusercontent.com 的 CDN 會供舊快取，
+  // 故優先走 GitHub API（無 CDN 快取、有 CORS），失敗才回退 raw。
+  function fetchLive(){
+    return fetch(API+'live.json?ref=live',{headers:{'Accept':'application/vnd.github+json'}})
+      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .then(function(j){
+        var bin=atob((j.content||'').replace(/\n/g,''));
+        var bytes=Uint8Array.from(bin,function(c){return c.charCodeAt(0);});
+        return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+      })
+      .catch(function(){
+        return fetch(RAW+'live/live.json?t='+Date.now()).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
+      });
+  }
   function setSync(msg,bad){
     var el=document.getElementById('syncStatus'); el.textContent=msg;
     el.parentElement.className='banner '+(bad?'warn':'ok');
@@ -934,7 +949,7 @@
     setSync('同步中…');
     var bust='?t='+Date.now();
     function grab(u){ return fetch(u).then(function(r){ if(!r.ok) throw 0; return r.json(); }).catch(function(){ return null; }); }
-    Promise.all([grab(RAW+'live/live.json'+bust), grab(RAW+'main/data.json'+bust), grab(RAW+'main/ledger.json'+bust), grab(RAW+'market/fyb_candidates.json'+bust)]).then(function(res){
+    Promise.all([fetchLive(), grab('data.json'+bust), grab('ledger.json'+bust), grab('fyb_candidates.json'+bust)]).then(function(res){
       var live=res[0]&&res[0].quotes?res[0]:null, daily=res[1];
       if(daily) lastDaily=daily;
       if(live) lastLive=live;
