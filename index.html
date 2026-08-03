@@ -951,8 +951,11 @@
     function grab(u){ return fetch(u).then(function(r){ if(!r.ok) throw 0; return r.json(); }).catch(function(){ return null; }); }
     Promise.all([fetchLive(), grab('data.json'+bust), grab('ledger.json'+bust), grab('fyb_candidates.json'+bust)]).then(function(res){
       var live=res[0]&&res[0].quotes?res[0]:null, daily=res[1];
+      var dailyDate=(daily&&daily.stocks)?(function(){ for(var k in daily.stocks) return daily.stocks[k].date; })():null;
+      // live 只在「比日線新」時才採用；收盤資料一出來就以官方收盤價為準
+      if(live&&dailyDate&&live.date&&live.date<=dailyDate) live=null;
       if(daily) lastDaily=daily;
-      if(live) lastLive=live;
+      lastLive=live;
       if(res[2]) lastLedger=res[2];
       if(res[3]) lastCands=res[3];
       if(!live&&!daily){ renderLedger(); setSync('讀不到 repo 資料——保留現有數字，5 分鐘後自動重試',true); return; }
@@ -960,12 +963,12 @@
       var snap=document.getElementById('snapDate');
       if(live){
         var t=live.updated_at?live.updated_at.slice(5,16).replace('T',' '):live.date;
-        snap.textContent=t+'（即時）';
+        snap.textContent=t+'（盤中即時）';
         setSync('✓ 已同步 '+n+' 檔即時價｜行情時間 '+t+'｜均線/量比基準：'+(daily?'前一交易日收盤（盤中量比為時間加權估算）':'尚無'));
       }else{
         var d0=daily.stocks&&Object.keys(daily.stocks).length?daily.stocks[Object.keys(daily.stocks)[0]].date:'';
         snap.textContent=d0+' 收盤';
-        setSync('✓ 已同步每日收盤資料（'+d0+'）｜盤中即時檔暫不可用');
+        setSync('✓ 已同步 '+n+' 檔官方收盤價（'+d0+'）｜含均線與正式量比');
       }
     });
   }
