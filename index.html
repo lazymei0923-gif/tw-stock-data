@@ -189,6 +189,15 @@
     </div>
   </section>
 
+  <!-- 獲利累計 -->
+  <section>
+    <div class="sec-head">
+      <h2>獲利累計</h2>
+      <span class="rule-ref" id="ledgerMeta">讀取帳本中…</span>
+    </div>
+    <div class="idx-grid" id="ledgerGrid"></div>
+  </section>
+
   <!-- 守則參數 -->
   <section>
     <div class="sec-head">
@@ -731,12 +740,31 @@
     if(live&&live.date) state.marketAsOf=live.date;
     save(); renderAll(); return n;
   }
+  function renderLedger(lg){
+    var g=document.getElementById('ledgerGrid');
+    if(!lg){ g.innerHTML='<p style="color:var(--sub);margin:0">讀不到 ledger.json——稍後自動重試</p>'; return; }
+    var recv=0, pend=0;
+    (lg.dividends||[]).forEach(function(d){ if(d.status==='已入帳') recv+=(d.amount||0); else pend+=(d.amount||0); });
+    var rt=lg.realized_total||0, total=rt+recv;
+    function money(v){ return (v>=0?'+':'−')+Math.abs(v).toLocaleString('en-US'); }
+    function card(name,val,extra,main){
+      return '<div class="idx-card'+(main?' main':'')+'"><p class="idx-name">'+name+'</p>'
+        +'<p class="idx-val'+(main?'':(val>=0?' pl-pos':' pl-neg'))+'">'+money(val)+'</p>'
+        +'<p class="idx-chg" style="color:'+(main?'#b9b9b3':'var(--sub)')+'">'+extra+'</p></div>';
+    }
+    g.innerHTML=card('含息累計損益', total, '已實現價差＋已入帳股息', true)
+      +card('已實現價差', rt, (lg.trades||[]).length+' 筆賣出，含稅費')
+      +card('已入帳股息', recv, '')
+      +card('待領股息', pend, '全入帳後累計 '+money(total+pend));
+    document.getElementById('ledgerMeta').textContent='ledger.json 自動帶入｜帳本更新 '+(lg.updated_at||'—');
+  }
   function syncRepo(){
     setSync('同步中…');
     var bust='?t='+Date.now();
     function grab(u){ return fetch(u).then(function(r){ if(!r.ok) throw 0; return r.json(); }).catch(function(){ return null; }); }
-    Promise.all([grab(RAW+'live/live.json'+bust), grab(RAW+'main/data.json'+bust)]).then(function(res){
+    Promise.all([grab(RAW+'live/live.json'+bust), grab(RAW+'main/data.json'+bust), grab(RAW+'main/ledger.json'+bust)]).then(function(res){
       var live=res[0]&&res[0].quotes?res[0]:null, daily=res[1];
+      renderLedger(res[2]);
       if(!live&&!daily){ setSync('讀不到 repo 資料——保留現有數字，5 分鐘後自動重試',true); return; }
       var n=applyRepo(live,daily);
       var snap=document.getElementById('snapDate');

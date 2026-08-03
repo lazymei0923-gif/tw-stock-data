@@ -1,18 +1,79 @@
 {
  "updated_at": "2026-08-03",
  "realized_total": -82904,
- "note": "已實現累計。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
+ "dividends_received_total": 4250,
+ "total_with_dividends": -78654,
+ "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋已入帳股息。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
  "trades": [
-  {"date": "2026-07-24", "stock": "3481 群創", "action": "賣出", "qty": 2000, "price": 49.7, "realized": -33527},
-  {"date": "2026-07-24", "stock": "009816 凱基台灣TOP50", "action": "賣出", "qty": 2000, "price": 14.99, "realized": 17},
-  {"date": "2026-07-30", "stock": "009816 凱基台灣TOP50", "action": "賣出", "qty": 18000, "price": "10,000股@13.16＋8,000股@13.48", "realized": -30139},
-  {"date": "2026-07-30", "stock": "0056 元大高股息", "action": "賣出", "qty": 3000, "price": 46.01, "realized": -14079},
-  {"date": "2026-08-03", "stock": "2891 中信金", "action": "賣出", "qty": 1000, "price": 65, "realized": -1981, "note": "暫估，對帳單後校正"},
-  {"date": "2026-08-03", "stock": "2303 聯電", "action": "賣出", "qty": 1000, "price": 118.5, "realized": -3195, "note": "成本以帳上均價 121 計；暫估，對帳單後校正"}
+  {
+   "date": "2026-07-24",
+   "stock": "3481 群創",
+   "action": "賣出",
+   "qty": 2000,
+   "price": 49.7,
+   "realized": -33527
+  },
+  {
+   "date": "2026-07-24",
+   "stock": "009816 凱基台灣TOP50",
+   "action": "賣出",
+   "qty": 2000,
+   "price": 14.99,
+   "realized": 17
+  },
+  {
+   "date": "2026-07-30",
+   "stock": "009816 凱基台灣TOP50",
+   "action": "賣出",
+   "qty": 18000,
+   "price": "10,000股@13.16＋8,000股@13.48",
+   "realized": -30139
+  },
+  {
+   "date": "2026-07-30",
+   "stock": "0056 元大高股息",
+   "action": "賣出",
+   "qty": 3000,
+   "price": 46.01,
+   "realized": -14079
+  },
+  {
+   "date": "2026-08-03",
+   "stock": "2891 中信金",
+   "action": "賣出",
+   "qty": 1000,
+   "price": 65,
+   "realized": -1981,
+   "note": "暫估，對帳單後校正"
+  },
+  {
+   "date": "2026-08-03",
+   "stock": "2303 聯電",
+   "action": "賣出",
+   "qty": 1000,
+   "price": 118.5,
+   "realized": -3195,
+   "note": "成本以帳上均價 121 計；暫估，對帳單後校正"
+  }
  ],
  "dividends": [
-  {"stock": "2881 富邦金", "amount": 4250, "status": "已入帳", "date": "2026-07-31"},
-  {"stock": "2891 中信金", "amount": 5000, "status": "待領", "pay_date": "2026-08-07"},
-  {"stock": "0056 元大高股息", "amount": 4050, "status": "待領", "pay_date": "約 2026-08"}
+  {
+   "stock": "2881 富邦金",
+   "amount": 4250,
+   "status": "已入帳",
+   "date": "2026-07-31"
+  },
+  {
+   "stock": "2891 中信金",
+   "amount": 5000,
+   "status": "待領",
+   "pay_date": "2026-08-07"
+  },
+  {
+   "stock": "0056 元大高股息",
+   "amount": 4050,
+   "status": "待領",
+   "pay_date": "約 2026-08"
+  }
  ]
 }
