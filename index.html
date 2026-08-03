@@ -199,7 +199,7 @@
       <label>停損警戒<input id="setSl" data-s="sl"> %</label>
       <label>停利減碼<input id="setTp1" data-s="tp1"> %</label>
       <label>停利出場<input id="setTp2" data-s="tp2"> %</label>
-      <p class="hint">損益觸及任一門檻，或收盤跌破 20 日線，就會在頁面最上方釘選紅色警示。持股表的「自訂停損價／自訂停利價」有填時，該檔以自訂價位為準（點位表標 ✎），沒填的才用上面的百分比。</p>
+      <p class="hint">損益觸及任一門檻就會在頁面最上方釘選警示。破線分級：跌破 20 日線但仍在成本上＝黃字「破線警戒・考慮減碼」；破線＋跌破成本＝紅色「出場」。持股表的「自訂停損價／自訂停利價」有填時，該檔以自訂價位為準（點位表標 ✎），沒填的才用上面的百分比。</p>
     </div>
   </section>
 
@@ -444,7 +444,10 @@
       if(v<0.5 && chg!=null && chg<-0.3) out.push(['bad','縮量下跌——沒人想接，恐續跌']);
       if(v<0.5 && chg!=null && Math.abs(chg)<=0.3 && h.ma20 && h.price<h.ma20) out.push(['warn','縮量止跌——底部可能近了，觀察是否止穩']);
     }
-    if(h.ma20 && h.price<h.ma20) out.push(['bad','跌破 20 日線——中長線守則：出場']);
+    if(h.ma20 && h.price<h.ma20){
+      if(h.cost>0&&h.price>h.cost) out.push(['warn','破線但仍在成本上——趨勢轉壞，考慮減碼']);
+      else out.push(['bad','跌破 20 日線'+(h.cost>0?'＋跌破成本':'')+'——出場']);
+    }
     if(h.cost>0&&h.price>0){
       var L=levelsFor(h);
       if(L.sl!=null&&h.price<=L.sl) out.push(['bad','觸及停損價 '+fmt(L.sl)+(L.slCustom?'（自訂）':'')+'——該砍就砍']);
@@ -461,7 +464,10 @@
       if(!(h.cost>0&&h.price>0)) return;
       var pl=(h.price-h.cost)/h.cost*100, nm=h.name||'（未命名）', L=levelsFor(h);
       if(L.sl!=null&&h.price<=L.sl) list.push({kind:'停損', profit:false, text:nm+' 現價 '+fmt(h.price)+' 已觸停損價 '+fmt(L.sl)+(L.slCustom?'（自訂）':'')+'（損益 '+pl.toFixed(1)+'%）'});
-      if(h.ma20&&h.price<h.ma20) list.push({kind:'破線', profit:false, text:nm+' 跌破 20 日線（'+fmt(h.ma20)+'），中長線守則：出場'});
+      if(h.ma20&&h.price<h.ma20){
+        if(h.cost>0&&h.price>h.cost) list.push({kind:'破線警戒', profit:false, soft:true, text:nm+' 跌破 20 日線（'+fmt(h.ma20)+'）但仍在成本上（+'+pl.toFixed(1)+'%）——考慮減碼'});
+        else list.push({kind:'破線', profit:false, text:nm+' 跌破 20 日線（'+fmt(h.ma20)+'）'+(h.cost>0?'且跌破成本（'+pl.toFixed(1)+'%）':'')+'——出場'});
+      }
       if(L.tp2!=null&&h.price>=L.tp2) list.push({kind:'停利', profit:true, text:nm+' 現價 '+fmt(h.price)+' 已達出場價 '+fmt(L.tp2)+'（損益 +'+pl.toFixed(1)+'%）'});
       else if(L.tp1!=null&&h.price>=L.tp1) list.push({kind:'停利', profit:true, text:nm+' 現價 '+fmt(h.price)+' 已達停利價 '+fmt(L.tp1)+(L.tpCustom?'（自訂）':'')+'（損益 +'+pl.toFixed(1)+'%）'});
     });
@@ -485,7 +491,7 @@
     var stocks={}; list.forEach(function(a){stocks[a.text.split(' ')[0]]=1;});
     setTitleFlash(Object.keys(stocks).length);
     if(list.length===0){ bar.className='alertbar'; ul.innerHTML=''; return; }
-    var onlyProfit=list.every(function(a){return a.profit;});
+    var onlyProfit=list.every(function(a){return a.profit||a.soft;});
     bar.className='alertbar show'+(onlyProfit?' profit-only':'');
     ul.innerHTML=list.map(function(a){
       return '<div class="alert-item'+(a.profit?' profit':'')+'"><span class="kind">'+a.kind+'</span><span>'+esc(a.text)+'</span></div>';
@@ -570,7 +576,8 @@
           else chips+='<span class="chip flat">停損'+(L.slCustom?'（自訂）':'')+'：'+dist(L.sl,'down')+'</span>';
         }
         if(h.ma20){
-          if(h.price<h.ma20) chips+='<span class="chip bad">✕ 已破 20 日線 '+fmt(h.ma20)+'——出場</span>';
+          if(h.price<h.ma20&&h.cost>0&&h.price>h.cost) chips+='<span class="chip warn">△ 已破 20 日線 '+fmt(h.ma20)+'（未破成本）——考慮減碼</span>';
+          else if(h.price<h.ma20) chips+='<span class="chip bad">✕ 已破 20 日線 '+fmt(h.ma20)+'＋破成本——出場</span>';
           else chips+='<span class="chip flat">20 日線：'+dist(h.ma20,'down')+'</span>';
         }
         if(L.tp2!=null&&h.price>=L.tp2) chips+='<span class="chip warn">✓ 已達出場價 '+fmt(L.tp2)+'——考慮全部了結</span>';
