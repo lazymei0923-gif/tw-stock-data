@@ -970,7 +970,7 @@
     g.innerHTML=card('總績效（含未實現）', grand, '含息累計 '+money(withDiv)+'＋未實現 '+money(unreal), true)
       +card('未實現損益', unreal, nHold+' 檔持倉依現價，未含賣出稅費')
       +card('含息累計損益', withDiv, '已實現價差＋股息（含待領）')
-      +card('已實現價差', rt, (lg.trades||[]).length+' 筆賣出，含稅費')
+      +card('已實現價差', rt, (lg.trades||[]).filter(function(t){return (t.action||'').indexOf('賣')>=0;}).length+' 筆賣出，含稅費')
       +card('股息', recv+pend, '已入帳 '+money(recv)+'、待領 '+money(pend));
     document.getElementById('ledgerMeta').textContent='ledger.json＋現價自動計算｜帳本更新 '+(lg.updated_at||'—');
     renderTrades(lg);
@@ -990,7 +990,8 @@
         +'<td class="num '+cls+'">'+rt+'</td>'
         +'<td style="text-align:left;white-space:normal;color:var(--sub);font-size:12px">'+esc(t.note||'')+'</td></tr>';
     }).join('') : '<tr><td colspan="7" style="text-align:left;color:var(--sub)">尚無交易紀錄。</td></tr>';
-    document.getElementById('tradeMeta').textContent=trades.length+' 筆賣出紀錄｜已實現合計 '+((lg.realized_total||0)>=0?'+':'−')+Math.abs(lg.realized_total||0).toLocaleString('en-US');
+    var nSell=trades.filter(function(t){return (t.action||'').indexOf('賣')>=0;}).length;
+    document.getElementById('tradeMeta').textContent=trades.length+' 筆交易（'+nSell+' 賣／'+(trades.length-nSell)+' 買）｜已實現合計 '+((lg.realized_total||0)>=0?'+':'−')+Math.abs(lg.realized_total||0).toLocaleString('en-US');
 
     var db=document.querySelector('#divTbl tbody'); if(!db) return;
     var divs=(lg.dividends||[]);
