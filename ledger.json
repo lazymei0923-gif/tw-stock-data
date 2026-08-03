@@ -2,8 +2,8 @@
  "updated_at": "2026-08-03",
  "realized_total": -82904,
  "dividends_received_total": 4250,
- "total_with_dividends": -78654,
- "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋已入帳股息。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
+ "total_with_dividends": -69604,
+ "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
  "trades": [
   {
    "date": "2026-07-24",
@@ -75,5 +75,6 @@
    "status": "待領",
    "pay_date": "約 2026-08"
   }
- ]
+ ],
+ "dividends_pending_total": 9050
 }

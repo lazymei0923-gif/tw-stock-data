@@ -927,7 +927,7 @@
     if(!lg){ g.innerHTML=''; return; }
     var recv=0, pend=0;
     (lg.dividends||[]).forEach(function(d){ if(d.status==='已入帳') recv+=(d.amount||0); else pend+=(d.amount||0); });
-    var rt=lg.realized_total||0, withDiv=rt+recv;
+    var rt=lg.realized_total||0, withDiv=rt+recv+pend;
     var unreal=0, nHold=0;
     state.holdings.forEach(function(h){ if(h.qty>0&&h.cost>0&&h.price>0){ unreal+=(h.price-h.cost)*h.qty; nHold++; } });
     unreal=Math.round(unreal);
@@ -940,9 +940,9 @@
     }
     g.innerHTML=card('總績效（含未實現）', grand, '含息累計 '+money(withDiv)+'＋未實現 '+money(unreal), true)
       +card('未實現損益', unreal, nHold+' 檔持倉依現價，未含賣出稅費')
-      +card('含息累計損益', withDiv, '已實現價差＋已入帳股息')
+      +card('含息累計損益', withDiv, '已實現價差＋股息（含待領）')
       +card('已實現價差', rt, (lg.trades||[]).length+' 筆賣出，含稅費')
-      +card('股息', recv, '已入帳；另待領 '+money(pend));
+      +card('股息', recv+pend, '已入帳 '+money(recv)+'、待領 '+money(pend));
     document.getElementById('ledgerMeta').textContent='ledger.json＋現價自動計算｜帳本更新 '+(lg.updated_at||'—');
   }
   function syncRepo(){
