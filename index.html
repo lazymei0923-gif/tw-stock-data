@@ -577,7 +577,7 @@
       var chips='';
       function dist(target,dir){
         var d=(target-h.price)/h.price*100;
-        return (dir==='down'?'再跌 ':'再漲 ')+Math.abs(d).toFixed(1)+'% 到';
+        return (dir==='down'?'再跌 ':'再漲 ')+Math.abs(d).toFixed(1)+'% 到 '+fmt(target);
       }
       if(has){
         if(L.sl!=null){
