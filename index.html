@@ -371,6 +371,7 @@
     <div class="check-card">
       <p style="margin:0 0 10px;color:var(--sub);font-size:13px">全自動判定，無需填寫——資料來自 repo 近 15 日 K＋盤中即時價。五關：連續漲停≥2天 → 首陰跌≥5% → 首陰量比≥1.5 → 隔天開盤不破首陰收盤 → 首陰後 3 天內。</p>
       <p style="margin:0 0 6px;font-weight:700">全市場候選榜（上市＋上櫃自動掃描） <span style="font-weight:400;color:var(--sub);font-size:12px" id="fybBoardMeta"></span></p>
+      <p style="margin:0 0 8px;font-size:12px;color:var(--sub)">只列「五關至少過 4 關」的已首陰標的，以及連板中等首陰的人氣股；過 3 關以下自動隱藏。</p>
       <div class="tbl-wrap" style="margin-bottom:18px">
         <table id="fybBoard" style="min-width:0">
           <thead><tr><th>個股</th><th style="text-align:left">自動判定</th></tr></thead>
@@ -808,9 +809,22 @@
     var meta=document.getElementById('fybBoardMeta');
     if(!lastCands){ meta.textContent=''; tb.innerHTML='<tr><td colspan="2" style="text-align:left;color:var(--sub)">等 repo 資料同步（開頁數秒內）。</td></tr>'; return; }
     var items=lastCands.items||[];
-    meta.textContent='資料日 '+(lastCands.asof||'—')+'｜候選 '+items.length+' 檔';
-    if(!items.length){ tb.innerHTML='<tr><td colspan="2" style="text-align:left;color:var(--sub)">目前無候選——出現「連續漲停 ≥2 天」的人氣股會自動列進來。</td></tr>'; return; }
     var liveNew=lastLive&&lastCands.asof&&lastLive.date>lastCands.asof;
+    // 已首陰的只留「至少 4 關成立」——只過 3 關（含以下）代表型態不夠純，先不列
+    var MIN_PASS=4, weak=0;
+    items=items.filter(function(it){
+      if(it.state!=='yin') return true;
+      var days=liveNew?it.days+1:it.days;
+      var ok=0;
+      it.conds.forEach(function(c,i){
+        if(i===4){ if(days<=3) ok++; return; }
+        if(c.ok===true) ok++;
+      });
+      if(ok<MIN_PASS){ weak++; return false; }
+      return true;
+    });
+    meta.textContent='資料日 '+(lastCands.asof||'—')+'｜候選 '+items.length+' 檔'+(weak?'（已隱藏 '+weak+' 檔只過 3 關以下）':'');
+    if(!items.length){ tb.innerHTML='<tr><td colspan="2" style="text-align:left;color:var(--sub)">目前無候選——出現「連續漲停 ≥2 天」的人氣股會自動列進來。</td></tr>'; return; }
     var shown=items.slice(0,30);
     shown.forEach(function(it){
       var q=(lastLive&&lastLive.quotes)?lastLive.quotes[it.code]:null, html='';
