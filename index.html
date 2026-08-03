@@ -334,19 +334,13 @@
       <span class="rule-ref">守則五：五條件同時成立，成功率才高</span>
     </div>
     <div class="check-card">
-      <label class="stock-label">評估標的<input class="stock" id="fybStock" placeholder="例：2330 台積電"></label>
-      <div class="settings" style="margin-bottom:12px">
-        <label>連續漲停天數<input data-fyb="limit"></label>
-        <label>首陰那天跌了幾 %<input data-fyb="drop" placeholder="-6"></label>
-        <label>首陰當天量比<input data-fyb="vol"></label>
-        <label>首陰收盤價<input data-fyb="close"></label>
-        <label>隔天開盤價<input data-fyb="open"></label>
-        <label>今天是首陰後第幾天<input data-fyb="days"></label>
-        <p class="hint">五關自動判定。已知的數字我會先幫你填好；近 10 日 K 已在 repo data.json，之後版本會全自動帶入。</p>
+      <p style="margin:0 0 10px;color:var(--sub);font-size:13px">全自動判定，無需填寫——資料來自 repo 近 15 日 K＋盤中即時價。五關：連續漲停≥2天 → 首陰跌≥5% → 首陰量比≥1.5 → 隔天開盤不破首陰收盤 → 首陰後 3 天內。</p>
+      <div class="tbl-wrap">
+        <table id="fybTbl" style="min-width:0">
+          <thead><tr><th>個股</th><th style="text-align:left">自動判定</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <div id="checkList"></div>
-      <div class="verdict no" id="fybVerdict"></div>
-      <p style="margin:12px 0 0"><button class="ghost mini" id="fybReset">重設檢查表</button></p>
     </div>
   </section>
 
@@ -383,7 +377,6 @@
       {name:'00631L 元大台灣50正2'},
       {name:'3231 緯創'}
     ],
-    fyb2:{stock:'2303 聯電', limit:1, drop:null, vol:null, close:null, open:null, days:null},
     holdAsOf:'2026/08/03',
     settings:{sl:0, tp1:20, tp2:10}
   };
@@ -716,47 +709,84 @@
     });
   }
 
-  /* ---------- 首陰反包（自動判定） ---------- */
-  if(!state.fyb2) state.fyb2=JSON.parse(JSON.stringify(DEFAULTS.fyb2));
-  function fybConds(){
-    var f=state.fyb2;
-    return [
-      {label:'最近連續漲停 2 天以上（大家都在盯的人氣股）', val:f.limit, ok:f.limit!=null&&f.limit>=2, why:f.limit==null?null:'連續漲停 '+f.limit+' 天'},
-      {label:'首陰那天跌得夠兇（跌 5% 以上，跌到市場吵成兩派）', val:f.drop, ok:f.drop!=null&&f.drop<=-5, why:f.drop==null?null:'跌幅 '+f.drop+'%'},
-      {label:'大跌那天量夠大（量比 1.5 以上＝恐慌籌碼有人低接）', val:f.vol, ok:f.vol!=null&&f.vol>=1.5, why:f.vol==null?null:'量比 '+f.vol},
-      {label:'隔天開盤不再跌（開盤價 ≥ 首陰收盤價＝有大資金在撐）', val:(f.close!=null&&f.open!=null)?1:null, ok:f.close!=null&&f.open!=null&&f.open>=f.close, why:(f.close==null||f.open==null)?null:'開 '+f.open+' vs 收 '+f.close},
-      {label:'還在 3 天黃金期內（拖太久熱度就散了）', val:f.days, ok:f.days!=null&&f.days>=1&&f.days<=3, why:f.days==null?null:'第 '+f.days+' 天'}
+  /* ---------- 首陰反包（全自動判定） ---------- */
+  var lastDaily=null, lastLive=null;
+  function fybEval(code){
+    var d=(lastDaily&&lastDaily.stocks)?lastDaily.stocks[code]:null;
+    if(!d||!d.history||d.history.length<7) return null;
+    var q=(lastLive&&lastLive.quotes)?lastLive.quotes[code]:null;
+    var bars=d.history.map(function(x){return {date:x.date, open:x.open, close:x.close, vol:x.volume};});
+    if(q&&lastLive.date&&lastLive.date>bars[bars.length-1].date&&q.open!=null&&q.price!=null){
+      bars.push({date:lastLive.date, open:q.open, close:q.price, vol:(q.vol_acc||0)*1000, intraday:true});
+    }
+    var n=bars.length, chg=[null];
+    for(var i=1;i<n;i++) chg.push((bars[i].close-bars[i-1].close)/bars[i-1].close*100);
+    function isLimit(i){ return chg[i]!=null&&chg[i]>=9.4; }
+    var tail=0; for(var t=n-1;t>=1&&isLimit(t);t--) tail++;
+    var j=-1;
+    for(var k=n-1;k>=2;k--){ if(chg[k]!=null&&chg[k]<=-5&&isLimit(k-1)){ j=k; break; } }
+    if(j<0){
+      if(tail>=2) return {state:'streak', tail:tail};
+      if(tail===1) return {state:'streak1'};
+      return {state:'none'};
+    }
+    var streak=0; for(var m=j-1;m>=1&&isLimit(m);m--) streak++;
+    var vr=null;
+    if(j>=5){
+      var avg=0; for(var v0=j-5;v0<j;v0++) avg+=bars[v0].vol;
+      avg/=5;
+      if(avg>0){
+        vr=bars[j].vol/avg;
+        if(bars[j].intraday&&q&&q.time){ var tm=q.time.split(':'), hm=(+tm[0])*60+(+tm[1]); if(!isNaN(hm)) vr=vr/Math.min(1,Math.max(0.05,(hm-540)/270)); }
+        vr=Math.round(vr*100)/100;
+      }
+    }
+    var open2=(j+1<n)?bars[j+1].open:null;
+    var daysSince=n-1-j;
+    var conds=[
+      {label:'連續漲停 ≥2 天', ok:streak>=2, why:'連 '+streak+' 板'},
+      {label:'首陰跌幅 ≥5%', ok:true, why:bars[j].date.slice(5)+' 跌 '+chg[j].toFixed(1)+'%'},
+      {label:'首陰量比 ≥1.5', ok:(vr==null)?null:(vr>=1.5), why:vr==null?'量資料不足':'量比 '+vr},
+      {label:'隔天開盤不破首陰收盤', ok:(open2==null)?null:(open2>=bars[j].close), why:open2==null?'等下個交易日開盤':'開 '+open2+' vs 收 '+bars[j].close},
+      {label:'首陰後 3 天內', ok:daysSince<=3, why:daysSince===0?'首陰當天':'第 '+daysSince+' 天'}
     ];
+    return {state:'yin', conds:conds};
   }
   function renderFyb(){
-    var wrap=document.getElementById('checkList'); wrap.innerHTML='';
-    var conds=fybConds(), okN=0, filled=0;
-    conds.forEach(function(c){
-      var mark, cls;
-      if(c.val==null){ mark='—'; cls='flat'; }
-      else if(c.ok){ mark='✓ 成立'; cls='good'; okN++; filled++; }
-      else{ mark='✕ 不成立'; cls='bad'; filled++; }
-      var d=document.createElement('div'); d.className='check-item';
-      d.innerHTML='<span class="chip '+cls+'" style="min-width:74px;text-align:center">'+mark+'</span><span>'+c.label+(c.why?'　<b style="color:var(--sub);font-weight:600">('+c.why+')</b>':'')+'</span>';
-      wrap.appendChild(d);
+    var tb=document.querySelector('#fybTbl tbody'); if(!tb) return;
+    tb.innerHTML='';
+    var seen={}, list=[];
+    state.holdings.concat(state.watchlist||[]).forEach(function(h){
+      var code=(h.name||'').split(' ')[0];
+      if(code&&!seen[code]){ seen[code]=1; list.push({code:code, name:h.name||code}); }
     });
-    var st=document.getElementById('fybStock');
-    st.value=state.fyb2.stock||'';
-    st.onchange=function(){ state.fyb2.stock=st.value; save(); };
-    document.querySelectorAll('input[data-fyb]').forEach(function(inp){
-      var k=inp.dataset.fyb;
-      inp.value=state.fyb2[k]==null?'':state.fyb2[k];
-      inp.onchange=function(){ state.fyb2[k]=inp.value===''?null:parseFloat(inp.value); save(); renderFyb(); };
+    if(!lastDaily){ tb.innerHTML='<tr><td colspan="2" style="text-align:left;color:var(--sub)">等 repo 資料同步後自動判定（開頁數秒內）。</td></tr>'; return; }
+    if(list.length===0){ tb.innerHTML='<tr><td colspan="2" style="text-align:left;color:var(--sub)">尚無持股或觀察標的。</td></tr>'; return; }
+    list.forEach(function(it){
+      var r=fybEval(it.code), html='';
+      if(!r) html='<span class="chip flat">資料不足</span>';
+      else if(r.state==='none') html='<span class="chip flat">近 15 日無「連續漲停後首陰」型態</span>';
+      else if(r.state==='streak1') html='<span class="chip warn">剛拉出 1 根漲停——再連 1 板進入候選，續盯</span>';
+      else if(r.state==='streak') html='<span class="chip warn">連 '+r.tail+' 板中——人氣股成形，等首陰出現自動判定</span>';
+      else{
+        var okN=0, pend=0;
+        var chipsHtml=r.conds.map(function(c){
+          var cls=(c.ok===null)?'flat':(c.ok?'good':'bad');
+          if(c.ok===true) okN++;
+          if(c.ok===null) pend++;
+          return '<span class="chip '+cls+'">'+(c.ok===null?'…':(c.ok?'✓':'✕'))+' '+c.label+'（'+c.why+'）</span>';
+        }).join('');
+        var v;
+        if(okN===5) v='<span class="chip good" style="font-weight:700">★ 五關全過——符合首陰反包，成功率高</span>';
+        else if(okN+pend===5&&pend>0) v='<span class="chip warn">已過 '+okN+' 關、'+pend+' 關待確認</span>';
+        else v='<span class="chip flat">只過 '+okN+'／5 關——守則：缺一就放掉</span>';
+        html=v+chipsHtml;
+      }
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+esc(it.name)+'</td><td style="text-align:left;white-space:normal">'+html+'</td>';
+      tb.appendChild(tr);
     });
-    var v=document.getElementById('fybVerdict');
-    if(filled<5){ v.className='verdict no'; v.textContent='已填 '+filled+'／5 項資料——全部填完才能判定（目前 '+okN+' 關成立）。'; }
-    else if(okN===5){ v.className='verdict go'; v.textContent=(state.fyb2.stock||'這檔')+' 五關全過——符合首陰反包型態，成功率高。'; }
-    else{ v.className='verdict no'; v.textContent=(state.fyb2.stock||'這檔')+' 只過 '+okN+'／5 關——守則：五關要「同時」過，缺一就不是好賭注，放掉。'; }
   }
-  document.getElementById('fybReset').addEventListener('click',function(){
-    state.fyb2={stock:'',limit:null,drop:null,vol:null,close:null,open:null,days:null}; save(); renderFyb();
-  });
-
   /* ---------- repo 即時行情同步 ---------- */
   var RAW='https://raw.githubusercontent.com/lazymei0923-gif/tw-stock-data/';
   function setSync(msg,bad){
@@ -832,6 +862,8 @@
     function grab(u){ return fetch(u).then(function(r){ if(!r.ok) throw 0; return r.json(); }).catch(function(){ return null; }); }
     Promise.all([grab(RAW+'live/live.json'+bust), grab(RAW+'main/data.json'+bust), grab(RAW+'main/ledger.json'+bust)]).then(function(res){
       var live=res[0]&&res[0].quotes?res[0]:null, daily=res[1];
+      if(daily) lastDaily=daily;
+      if(live) lastLive=live;
       if(res[2]) lastLedger=res[2];
       if(!live&&!daily){ renderLedger(); setSync('讀不到 repo 資料——保留現有數字，5 分鐘後自動重試',true); return; }
       var n=applyRepo(live,daily);
