@@ -6,6 +6,15 @@
  "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
  "trades": [
   {
+   "date": "2026-08-03",
+   "stock": "2303 聯電",
+   "action": "買進",
+   "qty": 1000,
+   "price": 121,
+   "realized": null,
+   "note": "含手續費 172，成本 121,172"
+  },
+  {
    "date": "2026-07-24",
    "stock": "3481 群創",
    "action": "賣出",
@@ -53,7 +62,7 @@
    "qty": 1000,
    "price": 118.5,
    "realized": -3195,
-   "note": "成本以帳上均價 121 計"
+   "note": "成本 121,172；若以現股當沖沖銷則證交稅減半、已實現應為 −3,017（待對帳單確認）"
   }
  ],
  "dividends": [
@@ -76,5 +85,6 @@
    "pay_date": "約 2026-08"
   }
  ],
- "dividends_pending_total": 9050
+ "dividends_pending_total": 9050,
+ "cost_basis_source": "2026/07/31 券商對帳單（Notion 股價快取頁）"
 }

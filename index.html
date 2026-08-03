@@ -230,7 +230,7 @@
       <label>停損警戒<input id="setSl" data-s="sl"> %</label>
       <label>停利減碼<input id="setTp1" data-s="tp1"> %</label>
       <label>停利出場<input id="setTp2" data-s="tp2"> %</label>
-      <p class="hint">損益觸及任一門檻就會在頁面最上方釘選警示。破線分級：跌破 20 日線但仍在成本上＝黃字「破線警戒・考慮減碼」；破線＋跌破成本＝紅色「出場」。持股表的「自訂停損價／自訂停利價」有填時，該檔以自訂價位為準（點位表標 ✎），沒填的才用上面的百分比。</p>
+      <p class="hint">成本均價採券商對帳單（含買進手續費），與券商庫存頁一致。損益觸及任一門檻就會在頁面最上方釘選警示。破線分級：跌破 20 日線但仍在成本上＝黃字「破線警戒・考慮減碼」；破線＋跌破成本＝紅色「出場」。持股表的「自訂停損價／自訂停利價」有填時，該檔以自訂價位為準（點位表標 ✎），沒填的才用上面的百分比。</p>
     </div>
   </section>
 
@@ -394,12 +394,12 @@
       {id:'kospi',name:'KOSPI',    val:6595.45,  chg:17.91}
     ],
     holdings:[
-      {name:'2881 富邦金',        qty:1000, cost:124.5, prev:130.0, price:130.00, vol:1.54, ma5:126.5, ma20:125.42, slp:118.3, tpp:128.2},
-      {name:'2887 台新新光金',    qty:5000, cost:29.55, prev:35.95, price:35.95,  vol:1.57, ma5:34.12, ma20:34.94, slp:32.4,  tpp:null},
-      {name:'2891 中信金',        qty:2000, cost:66.7,  prev:64.9,  price:65,     vol:1.32, ma5:63.08, ma20:65.21, slp:60.7,  tpp:null},
-      {name:'2883 凱基金',        qty:1000, cost:30.29, prev:30.85, price:30.85,  vol:2.03, ma5:29.85, ma20:29.94, slp:28.78, tpp:31.20},
-      {name:'009816 凱基台灣TOP50', qty:5000, cost:14.51, prev:14.65, price:14.65,  vol:1.03, ma5:14.01, ma20:14.8, slp:13.79, tpp:14.95},
-      {name:'0056 元大高股息',    qty:2000, cost:49.07, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:50.54}
+      {name:'2881 富邦金',        qty:1000, cost:124.677, prev:130.0, price:130.00, vol:1.54, ma5:126.5, ma20:125.42, slp:118.3, tpp:128.2},
+      {name:'2887 台新新光金',    qty:5000, cost:29.592, prev:35.95, price:35.95,  vol:1.57, ma5:34.12, ma20:34.94, slp:32.4,  tpp:null},
+      {name:'2891 中信金',        qty:2000, cost:66.695,  prev:64.9,  price:65,     vol:1.32, ma5:63.08, ma20:65.21, slp:60.7,  tpp:null},
+      {name:'2883 凱基金',        qty:1000, cost:30.293, prev:30.85, price:30.85,  vol:2.03, ma5:29.85, ma20:29.94, slp:28.78, tpp:31.20},
+      {name:'009816 凱基台灣TOP50', qty:5000, cost:14.5106, prev:14.65, price:14.65,  vol:1.03, ma5:14.01, ma20:14.8, slp:13.79, tpp:14.95},
+      {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:50.54}
     ],
     watchlist:[
       {name:'2337 旺宏'},
@@ -433,6 +433,13 @@
   if(!state || !state.holdings){ state = JSON.parse(JSON.stringify(DEFAULTS)); }
   if(!state.settings){ state.settings = JSON.parse(JSON.stringify(DEFAULTS.settings)); }
   if(!state.watchlist){ state.watchlist = JSON.parse(JSON.stringify(DEFAULTS.watchlist)); state.watchlistVer=DEFAULTS.watchlistVer; }
+  if((state.costVer||0) < 2){
+    DEFAULTS.holdings.forEach(function(dh){
+      var code=dh.name.split(' ')[0];
+      state.holdings.forEach(function(h){ if((h.name||'').split(' ')[0]===code) h.cost=dh.cost; });
+    });
+    state.costVer=2;
+  }
   if((state.watchlistVer||0) < DEFAULTS.watchlistVer){
     DEFAULTS.watchlist.forEach(function(w){
       var code=w.name.split(' ')[0];
