@@ -274,6 +274,11 @@
         <tbody></tbody>
       </table>
     </div>
+    <p style="margin:12px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="watchAdd" placeholder="代號 名稱（例：2330 台積電）" style="width:230px">
+      <button class="ghost mini" id="watchAddBtn">＋ 加入觀察</button>
+      <span style="font-size:12px;color:var(--sub)">新代號需在 repo 抓取清單內才有資料（跟 Claude 說一聲）</span>
+    </p>
   </section>
 
   <!-- 縮量判讀指南 -->
@@ -372,6 +377,12 @@
       {name:'009816 凱基台灣TOP50', qty:5000, cost:14.51, prev:14.65, price:14.65,  vol:1.03, ma5:14.01, ma20:14.8, slp:13.79, tpp:14.95},
       {name:'0056 元大高股息',    qty:2000, cost:49.07, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:50.54}
     ],
+    watchlist:[
+      {name:'2337 旺宏'},
+      {name:'2303 聯電'},
+      {name:'00631L 元大台灣50正2'},
+      {name:'3231 緯創'}
+    ],
     fyb2:{stock:'2303 聯電', limit:1, drop:null, vol:null, close:null, open:null, days:null},
     holdAsOf:'2026/08/03',
     settings:{sl:0, tp1:20, tp2:10}
@@ -388,6 +399,7 @@
   try{ state = JSON.parse(localStorage.getItem(KEY)) || null; }catch(e){ state=null; }
   if(!state || !state.holdings){ state = JSON.parse(JSON.stringify(DEFAULTS)); }
   if(!state.settings){ state.settings = JSON.parse(JSON.stringify(DEFAULTS.settings)); }
+  if(!state.watchlist){ state.watchlist = JSON.parse(JSON.stringify(DEFAULTS.watchlist)); }
   /* tw-stock-data 2026-07-31 收盤：昨收/量比/MA5/MA20（只覆蓋市場欄位，保留手動的成本/股數/自訂價） */
   var MARKET={date:'2026-07-31', data:{
     '2881':{prev:130.0, vol:1.54, ma5:126.5, ma20:125.42},
@@ -462,6 +474,20 @@
       if(L.tp2!=null&&h.price>=L.tp2) out.push(['warn','達停利出場價 '+fmt(L.tp2)+'——考慮獲利了結']);
       else if(L.tp1!=null&&h.price>=L.tp1) out.push(['warn','達停利價 '+fmt(L.tp1)+(L.tpCustom?'（自訂）':'')+'——先收回獲利']);
     }
+    if(out.length===0) out.push(['flat','無特別訊號']);
+    return out;
+  }
+  function analyzeWatch(h){
+    var out=[], chg=(h.prev>0)?(h.price-h.prev)/h.prev*100:null, v=h.vol;
+    if(v!=null && !isNaN(v)){
+      if(v>3 && chg!=null && chg>4) out.push(['warn','巨量急拉，必然回測——不追高，等回測站穩']);
+      else if(v>1.5 && chg!=null && chg>=0 && chg<1) out.push(['warn','放量滯漲——量大價不動，疑似頭部']);
+      else if(v>1.5 && chg!=null && chg>1 && h.ma20 && h.price>h.ma20) out.push(['good','放量突破 20 日線——守則認定的進場型態']);
+      if(v<0.5 && chg!=null && chg>0.3) out.push(['good','縮量上漲——方向延續，續強']);
+      if(v<0.5 && chg!=null && chg<-0.3) out.push(['bad','縮量下跌——沒人想接，恐續跌']);
+      if(v<0.5 && chg!=null && Math.abs(chg)<=0.3 && h.ma20 && h.price<h.ma20) out.push(['warn','縮量止跌——底部可能近了，觀察是否止穩']);
+    }
+    if(h.ma20 && h.price<h.ma20) out.push(['flat','20 日線下——空方趨勢，等放量轉強再進']);
     if(out.length===0) out.push(['flat','無特別訊號']);
     return out;
   }
@@ -561,6 +587,11 @@
     else if(n>3){cls='warn'; msg='目前持股 '+n+' 檔——已超過 3 檔上限，原作者就算大牛市也不超過 4 檔。';}
     cb.innerHTML='<div class="banner '+cls+'"><span class="dot"></span>'+msg+'</div>';
   }
+  document.getElementById('watchAddBtn').addEventListener('click',function(){
+    var inp=document.getElementById('watchAdd'), v=(inp.value||'').trim();
+    if(!v) return;
+    state.watchlist.push({name:v}); inp.value=''; save(); renderAll();
+  });
   document.getElementById('addRowBtn').addEventListener('click',function(){
     state.holdings.push({name:'',qty:null,cost:null,prev:null,price:null,vol:null,ma5:null,ma20:null});
     save(); renderAll();
@@ -612,7 +643,7 @@
   /* ---------- 量價訊號表 ---------- */
   function renderSignals(){
     var tb=document.querySelector('#sigTbl tbody'); tb.innerHTML='';
-    if(state.holdings.length===0){ tb.innerHTML='<tr><td colspan="3" style="text-align:left;color:var(--sub)">尚無持股。</td></tr>'; return; }
+    if(state.holdings.length===0){ tb.innerHTML='<tr><td colspan="3" style="text-align:left;color:var(--sub)">尚無持股。</td></tr>'; }
     state.holdings.forEach(function(h){
       var vl=volLabel(h.vol);
       var sigs=analyze(h).map(function(s){return '<span class="chip '+s[0]+'">'+s[1]+'</span>';}).join('');
@@ -622,6 +653,27 @@
         +'<td style="text-align:left;white-space:normal">'+sigs+'</td>';
       tb.appendChild(tr);
     });
+    if((state.watchlist||[]).length){
+      var hd=document.createElement('tr');
+      hd.innerHTML='<td colspan="3" style="text-align:left;background:var(--surface);color:var(--sub);font-size:12px;font-weight:600;letter-spacing:.08em">觀察中（非持股，不算損益）</td>';
+      tb.appendChild(hd);
+      state.watchlist.forEach(function(h,i){
+        var chg=(h.prev>0&&h.price>0)?(h.price-h.prev)/h.prev*100:null;
+        var px=(h.price!=null)?fmt(h.price):'—';
+        var chgTxt=(chg==null)?'':' <span class="num '+(chg>=0?'pl-pos':'pl-neg')+'" style="font-size:12px">'+(chg>=0?'+':'')+chg.toFixed(2)+'%</span>';
+        var wl=volLabel(h.vol);
+        var wsigs=analyzeWatch(h).map(function(x){return '<span class="chip '+x[0]+'">'+x[1]+'</span>';}).join('');
+        var wtr=document.createElement('tr');
+        wtr.innerHTML='<td>'+esc(h.name)+' <span class="num" style="font-weight:400;color:var(--sub)">'+px+'</span>'+chgTxt
+          +' <button class="ghost mini" data-wdel="'+i+'" style="padding:1px 6px;font-size:11px">✕</button></td>'
+          +'<td><span class="chip '+wl[0]+'">'+wl[1]+'</span></td>'
+          +'<td style="text-align:left;white-space:normal">'+wsigs+'</td>';
+        tb.appendChild(wtr);
+      });
+      tb.querySelectorAll('button[data-wdel]').forEach(function(b){
+        b.addEventListener('click',function(){ state.watchlist.splice(+b.dataset.wdel,1); save(); renderAll(); });
+      });
+    }
   }
 
   /* ---------- 趨勢卡 ---------- */
@@ -735,6 +787,14 @@
         var vi=volRatioIntraday(q,d);
         h.vol=(vi!=null)?vi:d.vol_ratio;
       }
+    });
+    (state.watchlist||[]).forEach(function(h){
+      var code=(h.name||'').split(' ')[0];
+      var q=(live&&live.quotes)?live.quotes[code]:null;
+      var d=(daily&&daily.stocks)?daily.stocks[code]:null;
+      if(q&&q.price!=null){ h.price=q.price; if(q.prev_close!=null)h.prev=q.prev_close; }
+      else if(d){ h.price=d.close; h.prev=d.prev; }
+      if(d){ h.ma5=d.ma5; h.ma20=d.ma20; var vi=volRatioIntraday(q,d); h.vol=(vi!=null)?vi:d.vol_ratio; }
     });
     if(live&&live.date) state.marketAsOf=live.date;
     save(); renderAll(); return n;
