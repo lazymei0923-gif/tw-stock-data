@@ -900,7 +900,7 @@
       var d=(daily&&daily.stocks)?daily.stocks[code]:null;
       if(q&&q.price!=null){ h.price=q.price; n++; }
       if(q&&q.prev_close!=null) h.prev=q.prev_close;
-      else if(d&&!q){ h.price=d.close; h.prev=d.prev; }
+      else if(d){ h.price=d.close; h.prev=d.prev; n++; }
       if(d){
         h.ma5=d.ma5; h.ma20=d.ma20;
         var vi=volRatioIntraday(q,d);
