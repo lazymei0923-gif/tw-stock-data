@@ -1,16 +1,16 @@
 {
- "updated_at": "2026-08-03T13:16:58.408226+00:00",
- "asof": "2026-08-03",
+ "updated_at": "2026-08-04T12:10:14.841560+00:00",
+ "asof": "2026-08-04",
  "items": [
   {
    "code": "6226",
    "name": "光鼎",
    "market": "tse",
    "state": "yin",
-   "close": 21.55,
+   "close": 22.0,
    "yinClose": 20.3,
    "yinDate": "2026-07-30",
-   "days": 2,
+   "days": 3,
    "conds": [
     {
      "k": "連續漲停 ≥2 天",
@@ -35,50 +35,11 @@
     {
      "k": "首陰後 3 天內",
      "ok": true,
-     "why": "第 2 天"
+     "why": "第 3 天"
     }
    ],
    "allPass": true,
    "pend": 0
-  },
-  {
-   "code": "2360",
-   "name": "致茂",
-   "market": "tse",
-   "state": "yin",
-   "close": 1960.0,
-   "yinClose": 1960.0,
-   "yinDate": "2026-08-03",
-   "days": 0,
-   "conds": [
-    {
-     "k": "連續漲停 ≥2 天",
-     "ok": false,
-     "why": "連 1 板"
-    },
-    {
-     "k": "首陰跌幅 ≥5%",
-     "ok": true,
-     "why": "08-03 跌 -6.7%"
-    },
-    {
-     "k": "首陰量比 ≥1.5",
-     "ok": false,
-     "why": "量比 1.19"
-    },
-    {
-     "k": "隔天開盤不破首陰收盤",
-     "ok": null,
-     "why": "等下個交易日開盤"
-    },
-    {
-     "k": "首陰後 3 天內",
-     "ok": true,
-     "why": "首陰當天"
-    }
-   ],
-   "allPass": false,
-   "pend": 1
   },
   {
    "code": "6432",
@@ -120,14 +81,53 @@
    "pend": 1
   },
   {
+   "code": "2360",
+   "name": "致茂",
+   "market": "tse",
+   "state": "yin",
+   "close": 1925.0,
+   "yinClose": 1960.0,
+   "yinDate": "2026-08-03",
+   "days": 1,
+   "conds": [
+    {
+     "k": "連續漲停 ≥2 天",
+     "ok": false,
+     "why": "連 1 板"
+    },
+    {
+     "k": "首陰跌幅 ≥5%",
+     "ok": true,
+     "why": "08-03 跌 -6.7%"
+    },
+    {
+     "k": "首陰量比 ≥1.5",
+     "ok": false,
+     "why": "量比 1.19"
+    },
+    {
+     "k": "隔天開盤不破首陰收盤",
+     "ok": true,
+     "why": "開 1960.0 vs 收 1960.0"
+    },
+    {
+     "k": "首陰後 3 天內",
+     "ok": true,
+     "why": "第 1 天"
+    }
+   ],
+   "allPass": false,
+   "pend": 0
+  },
+  {
    "code": "3504",
    "name": "揚明光",
    "market": "tse",
    "state": "yin",
-   "close": 75.3,
+   "close": 78.2,
    "yinClose": 62.3,
    "yinDate": "2026-07-30",
-   "days": 2,
+   "days": 3,
    "conds": [
     {
      "k": "連續漲停 ≥2 天",
@@ -152,7 +152,7 @@
     {
      "k": "首陰後 3 天內",
      "ok": true,
-     "why": "第 2 天"
+     "why": "第 3 天"
     }
    ],
    "allPass": false,
@@ -163,10 +163,10 @@
    "name": "佳凌",
    "market": "tse",
    "state": "yin",
-   "close": 38.0,
+   "close": 37.3,
    "yinClose": 33.95,
    "yinDate": "2026-07-30",
-   "days": 2,
+   "days": 3,
    "conds": [
     {
      "k": "連續漲停 ≥2 天",
@@ -191,7 +191,7 @@
     {
      "k": "首陰後 3 天內",
      "ok": true,
-     "why": "第 2 天"
+     "why": "第 3 天"
     }
    ],
    "allPass": false,
@@ -319,296 +319,152 @@
    "name": "川湖",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 8635.0
+   "tail": 3,
+   "close": 9495.0
   },
   {
    "code": "2301",
    "name": "光寶科",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 229.5
-  },
-  {
-   "code": "2313",
-   "name": "華通",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 185.5
-  },
-  {
-   "code": "2327",
-   "name": "國巨*",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 552.0
-  },
-  {
-   "code": "2337",
-   "name": "旺宏",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 110.5
+   "tail": 3,
+   "close": 252.0
   },
   {
    "code": "2344",
    "name": "華邦電",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 143.0
-  },
-  {
-   "code": "2345",
-   "name": "智邦",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 2335.0
-  },
-  {
-   "code": "2368",
-   "name": "金像電",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 872.0
+   "tail": 3,
+   "close": 157.0
   },
   {
    "code": "2408",
    "name": "南亞科",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 396.5
-  },
-  {
-   "code": "2454",
-   "name": "聯發科",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 3910.0
+   "tail": 3,
+   "close": 436.0
   },
   {
    "code": "2455",
    "name": "全新",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 321.0
+   "tail": 3,
+   "close": 353.0
   },
   {
    "code": "2464",
    "name": "盟立",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 147.5
-  },
-  {
-   "code": "2481",
-   "name": "強茂",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 129.0
-  },
-  {
-   "code": "2486",
-   "name": "一詮",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 206.5
-  },
-  {
-   "code": "2492",
-   "name": "華新科",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 239.5
+   "tail": 3,
+   "close": 162.0
   },
   {
    "code": "2493",
    "name": "揚博",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 200.0
+   "tail": 3,
+   "close": 220.0
   },
   {
    "code": "3006",
    "name": "晶豪科",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 198.0
-  },
-  {
-   "code": "3017",
-   "name": "奇鋐",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 2550.0
-  },
-  {
-   "code": "3037",
-   "name": "欣興",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 865.0
-  },
-  {
-   "code": "3090",
-   "name": "日電貿",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 137.5
-  },
-  {
-   "code": "3167",
-   "name": "大量",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 534.0
+   "tail": 3,
+   "close": 217.5
   },
   {
    "code": "3189",
    "name": "景碩",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 698.0
-  },
-  {
-   "code": "3443",
-   "name": "創意",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 4185.0
-  },
-  {
-   "code": "3450",
-   "name": "聯鈞",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 409.0
+   "tail": 3,
+   "close": 767.0
   },
   {
    "code": "3653",
    "name": "健策",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 3770.0
-  },
-  {
-   "code": "3711",
-   "name": "日月光投控",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 610.0
-  },
-  {
-   "code": "6202",
-   "name": "盛群",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 58.7
-  },
-  {
-   "code": "6209",
-   "name": "今國光",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 69.8
-  },
-  {
-   "code": "6213",
-   "name": "聯茂",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 289.0
+   "tail": 3,
+   "close": 4145.0
   },
   {
    "code": "6442",
    "name": "光聖",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 1270.0
+   "tail": 3,
+   "close": 1395.0
   },
   {
    "code": "6531",
    "name": "愛普*",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 733.0
+   "tail": 3,
+   "close": 806.0
   },
   {
-   "code": "6669",
-   "name": "緯穎",
+   "code": "7610",
+   "name": "聯友金屬-創",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 5925.0
-  },
-  {
-   "code": "6830",
-   "name": "汎銓",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 380.5
-  },
-  {
-   "code": "7750",
-   "name": "新代",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 2235.0
+   "tail": 3,
+   "close": 1450.0
   },
   {
    "code": "8021",
    "name": "尖點",
    "market": "tse",
    "state": "streak",
-   "tail": 2,
-   "close": 355.0
-  },
-  {
-   "code": "8039",
-   "name": "台虹",
-   "market": "tse",
-   "state": "streak",
-   "tail": 2,
-   "close": 190.5
+   "tail": 3,
+   "close": 390.5
   },
   {
    "code": "8996",
    "name": "高力",
    "market": "tse",
    "state": "streak",
+   "tail": 3,
+   "close": 1030.0
+  },
+  {
+   "code": "2399",
+   "name": "映泰",
+   "market": "tse",
+   "state": "streak",
    "tail": 2,
-   "close": 940.0
+   "close": 39.85
+  },
+  {
+   "code": "2426",
+   "name": "鼎元",
+   "market": "tse",
+   "state": "streak",
+   "tail": 2,
+   "close": 60.8
+  },
+  {
+   "code": "3048",
+   "name": "益登",
+   "market": "tse",
+   "state": "streak",
+   "tail": 2,
+   "close": 55.8
+  },
+  {
+   "code": "4989",
+   "name": "榮科",
+   "market": "tse",
+   "state": "streak",
+   "tail": 2,
+   "close": 67.2
   },
   {
    "code": "1815",
