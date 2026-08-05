@@ -17,20 +17,10 @@ jobs:
           python-version: "3.12"
       - name: Fetch data
         run: python fetch_daily.py
-      - name: Market scan
-        run: |
-          curl -sf https://raw.githubusercontent.com/${{ github.repository }}/market/market_history.json -o market_history.json || true
-          python market_scan.py
       - name: Commit
         run: |
           git config user.name "stock-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data.json fyb_candidates.json
+          git add data.json
           git diff --cached --quiet || git commit -m "data: $(date -u +%Y-%m-%d)"
           git push
-      - name: Push market branch
-        run: |
-          mkdir /tmp/mkt && cp market_history.json fyb_candidates.json /tmp/mkt/
-          cd /tmp/mkt && git init -q -b market && git add .
-          git -c user.name=stock-bot -c user.email=bot@users.noreply.github.com commit -qm "market: $(date -u +%Y-%m-%d)"
-          git push -f https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git market
