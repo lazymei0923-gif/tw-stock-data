@@ -1,8 +1,8 @@
 {
  "updated_at": "2026-08-03",
- "realized_total": -84615,
+ "realized_total": -84437,
  "dividends_received_total": 4250,
- "total_with_dividends": -71315,
+ "total_with_dividends": -71137,
  "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
  "trades": [
   {
@@ -64,11 +64,11 @@
   {
    "date": "2026-08-03",
    "stock": "2303 聯電",
-   "action": "賣出",
+   "action": "賣出（現股當沖）",
    "qty": 1000,
    "price": 118.5,
-   "realized": -3195,
-   "note": "成本 121,172；若以現股當沖沖銷則證交稅減半、已實現應為 −3,017（待對帳單確認）",
+   "realized": -3017,
+   "note": "當沖：成本 121,172（買 121＋手續費 172）／實收 118,155（手續費 168＋當沖證交稅 177，稅率減半）",
    "seq": 7
   },
   {
