@@ -228,7 +228,7 @@
     <p style="margin:10px 0 0;font-weight:700;font-size:14px">股息紀錄</p>
     <div class="tbl-wrap" style="margin-top:6px">
       <table id="divTbl" style="min-width:0">
-        <thead><tr><th style="text-align:left">標的</th><th style="text-align:left">除息日</th><th style="text-align:left">發放日</th><th>金額</th><th>狀態</th></tr></thead>
+        <thead><tr><th style="text-align:left">標的</th><th style="text-align:left">除息日</th><th style="text-align:left">發放日</th><th>除息前收</th><th>現價</th><th>填息</th><th>金額</th><th>狀態</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -1098,12 +1098,25 @@
     var divs=(lg.dividends||[]);
     db.innerHTML = divs.length ? divs.map(function(d){
       var paid=(d.status==='已入帳');
+      /* 填息追蹤：除息前收＝填息目標（官方 TWT49U），現價取持股表同代號的即時價；
+         現價 ≥ 目標＝已填息，否則顯示還差幾 %。 */
+      var code=(d.stock||'').split(' ')[0], hold=null;
+      state.holdings.forEach(function(h){ if((h.name||'').split(' ')[0]===code) hold=h; });
+      var now=(hold&&hold.price>0)?hold.price:null, tgt=(d.ex_close>0)?d.ex_close:null;
+      var fill='—';
+      if(now!=null&&tgt!=null){
+        fill=(now>=tgt)?'<span class="chip good">✅ 已填息</span>'
+                       :'<span class="chip flat">還差 '+((tgt-now)/tgt*100).toFixed(1)+'%</span>';
+      }
       return '<tr><td style="text-align:left">'+esc(d.stock||'')+'</td>'
         +'<td style="text-align:left" class="num">'+esc(d.ex_date||'—')+'</td>'
         +'<td style="text-align:left" class="num">'+esc(d.date||d.pay_date||'—')+'</td>'
+        +'<td class="num">'+(tgt!=null?fmt(tgt):'—')+'</td>'
+        +'<td class="num">'+(now!=null?fmt(now):'—')+'</td>'
+        +'<td>'+fill+'</td>'
         +'<td class="num pl-pos">+'+Number(d.amount||0).toLocaleString('en-US')+'</td>'
         +'<td><span class="chip '+(paid?'good':'flat')+'">'+esc(d.status||'')+'</span></td></tr>';
-    }).join('') : '<tr><td colspan="5" style="text-align:left;color:var(--sub)">尚無股息紀錄。</td></tr>';
+    }).join('') : '<tr><td colspan="8" style="text-align:left;color:var(--sub)">尚無股息紀錄。</td></tr>';
   }
   function syncRepo(){
     setSync('同步中…');
