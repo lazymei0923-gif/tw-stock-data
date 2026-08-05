@@ -70,6 +70,16 @@
    "realized": -3195,
    "note": "成本 121,172；若以現股當沖沖銷則證交稅減半、已實現應為 −3,017（待對帳單確認）",
    "seq": 7
+  },
+  {
+   "date": "2026-08-04",
+   "stock": "2337 旺宏",
+   "action": "買進",
+   "qty": 1000,
+   "price": 113,
+   "realized": null,
+   "note": "含手續費 161，成本 113,161",
+   "seq": 8
   }
  ],
  "dividends": [
@@ -93,5 +103,5 @@
   }
  ],
  "dividends_pending_total": 9050,
- "cost_basis_source": "2026/07/31 券商對帳單（Notion 股價快取頁）"
+ "cost_basis_source": "2026/07/31 券商對帳單（Notion 股價快取頁）＋後續交易逐筆計入"
 }

@@ -413,10 +413,10 @@
       {name:'2891 中信金',        qty:2000, cost:66.695,  prev:64.9,  price:65,     vol:1.32, ma5:63.08, ma20:65.21, slp:60.7,  tpp:null},
       {name:'2883 凱基金',        qty:1000, cost:30.293, prev:30.85, price:30.85,  vol:2.03, ma5:29.85, ma20:29.94, slp:28.78, tpp:31.20},
       {name:'009816 凱基台灣TOP50', qty:5000, cost:14.5106, prev:14.65, price:14.65,  vol:1.03, ma5:14.01, ma20:14.8, slp:13.79, tpp:14.95},
-      {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:50.54}
+      {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:50.54},
+      {name:'2337 旺宏',          qty:1000, cost:113.161, prev:null,  price:null,   vol:null, ma5:null,  ma20:null,  slp:null,  tpp:null}
     ],
     watchlist:[
-      {name:'2337 旺宏'},
       {name:'2303 聯電'},
       {name:'00631L 元大台灣50正2'},
       {name:'3231 緯創'},
@@ -453,6 +453,18 @@
       state.holdings.forEach(function(h){ if((h.name||'').split(' ')[0]===code) h.cost=dh.cost; });
     });
     state.costVer=2;
+  }
+  if((state.holdVer||0) < 3){
+    DEFAULTS.holdings.forEach(function(dh){
+      var code=dh.name.split(' ')[0];
+      if(!state.holdings.some(function(h){ return (h.name||'').split(' ')[0]===code; }))
+        state.holdings.push(JSON.parse(JSON.stringify(dh)));
+    });
+    state.watchlist=(state.watchlist||[]).filter(function(w){
+      var c=(w.name||'').split(' ')[0];
+      return !state.holdings.some(function(h){ return (h.name||'').split(' ')[0]===c; });
+    });
+    state.holdVer=3;
   }
   if((state.watchlistVer||0) < DEFAULTS.watchlistVer){
     DEFAULTS.watchlist.forEach(function(w){
