@@ -1,8 +1,8 @@
 {
     "updated_at": "2026-08-05",
-    "realized_total": -84437,
+    "realized_total": -86641,
     "dividends_received_total": 4240,
-    "total_with_dividends": -66177,
+    "total_with_dividends": -68381,
     "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
     "trades": [
         {
@@ -57,8 +57,8 @@
             "action": "賣出",
             "qty": 1000,
             "price": 65,
-            "realized": -1981,
-            "note": "已核對",
+            "realized": -4185,
+            "note": "FIFO 先進先出：賣出動用第一批 2,000股@68.8 的一半（成本 68,898）；實收 64,713（65,000−手續費92−證交稅195）→ −4,185。原記 −1,981 為移動平均口徑，2026-08-05 依券商庫存截圖（剩餘成本 131,186）修正。",
             "seq": 6
         },
         {
@@ -126,6 +126,6 @@
         }
     ],
     "dividends_pending_total": 14020,
-    "cost_basis_source": "2026/07/31 券商對帳單（Notion 股價快取頁）＋後續交易逐筆計入",
+    "cost_basis_source": "2026/07/31 券商對帳單＋後續交易逐筆計入；分批買賣的成本認列採 FIFO 先進先出（與券商一致，2026-08-05 中信金實證）",
     "dividend_fee_note": "股利匯撥每筆扣手續費 10 元（2026-07-31 富邦金 4,250→實收 4,240 實證）；待領金額已扣抵預估。"
 }
