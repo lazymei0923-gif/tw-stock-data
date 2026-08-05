@@ -456,6 +456,19 @@
     });
     state.costVer=2;
   }
+  /* seedVer 4（2026-08-05）：repo 種子＝唯一真相源——股數/成本/停損線/停利線全量同步進舊 localStorage。
+     成本改 FIFO（2891 66.695→65.593）、2887 線修正 32.4→31.6、2337 補 B 類線 105.6。
+     沒有這段，種子改了但老瀏覽器永遠用舊值。 */
+  if((state.seedVer||0) < 4){
+    DEFAULTS.holdings.forEach(function(dh){
+      var code=dh.name.split(' ')[0];
+      state.holdings.forEach(function(h){
+        if((h.name||'').split(' ')[0]===code){ h.qty=dh.qty; h.cost=dh.cost; h.slp=dh.slp; h.tpp=dh.tpp; }
+      });
+    });
+    state.seedVer=4;
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+  }
   if((state.holdVer||0) < 3){
     DEFAULTS.holdings.forEach(function(dh){
       var code=dh.name.split(' ')[0];
