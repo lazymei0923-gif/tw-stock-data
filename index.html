@@ -79,8 +79,10 @@
   td{padding:8px 10px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap}
   td:first-child{text-align:left; font-weight:600}
   tr:last-child td{border-bottom:none}
-  td input{width:76px; text-align:right}
-  td input.name{width:110px; text-align:left; font-weight:600}
+  td input{width:62px; text-align:right}
+  td input.name{width:104px; text-align:left; font-weight:600}
+  /* 持股總覽欄位多（15 欄），數字欄收窄＋左右內距縮小，讓「未實現損益」不用橫捲就看得到 */
+  #holdTbl th, #holdTbl td{padding-left:6px; padding-right:6px}
   input{
     background:var(--card); color:var(--ink); border:1px solid var(--line-strong);
     padding:4px 6px; font:inherit; font-size:13px; font-variant-numeric:tabular-nums;
@@ -267,7 +269,7 @@
         <thead>
           <tr>
             <th>代號／名稱</th><th>股數</th><th>成本</th><th>昨收</th><th>現價</th>
-            <th>量比</th><th>5 日線</th><th>20 日線</th><th>自訂停損價</th><th>自訂停利價</th><th>今日漲跌</th><th>損益</th><th></th>
+            <th>量比</th><th>5 日線</th><th>20 日線</th><th>自訂停損價</th><th>自訂停利價</th><th>今日漲跌</th><th>市值</th><th>未實現損益</th><th>報酬率</th><th></th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -662,11 +664,36 @@
       });
       var chg=(h.prev>0)?(h.price-h.prev)/h.prev*100:null;
       var pl=(h.cost>0)?(h.price-h.cost)/h.cost*100:null;
+      /* 未實現損益＝(現價−成本)×股數。成本為券商對帳單含手續費均價，
+         尚未撥發的配股不計入股數，所以這裡是「已入庫部位」的損益。 */
+      var mv=(h.qty>0&&h.price>0)?Math.round(h.price*h.qty):null;
+      var upl=(h.qty>0&&h.cost>0&&h.price>0)?Math.round((h.price-h.cost)*h.qty):null;
+      function money(v){ return (v>=0?'+':'−')+Math.abs(v).toLocaleString('en-US'); }
       cells+='<td class="num '+(chg>=0?'pl-pos':'pl-neg')+'">'+(chg==null?'—':(chg>=0?'+':'')+chg.toFixed(2)+'%')+'</td>';
+      cells+='<td class="num">'+(mv==null?'—':mv.toLocaleString('en-US'))+'</td>';
+      cells+='<td class="num '+(upl>=0?'pl-pos':'pl-neg')+'" style="font-weight:700">'+(upl==null?'—':money(upl))+'</td>';
       cells+='<td class="num '+(pl>=0?'pl-pos':'pl-neg')+'">'+(pl==null?'—':(pl>=0?'+':'')+pl.toFixed(2)+'%')+'</td>';
       cells+='<td><button class="ghost mini" data-del="'+i+'">刪除</button></td>';
       tr.innerHTML=cells; tb.appendChild(tr);
     });
+    /* 合計列：只加總「股數、成本、現價」都有值的部位（觀察中/資料未齊的不算） */
+    (function(){
+      var tMv=0, tCost=0, cnt=0;
+      state.holdings.forEach(function(h){
+        if(h.qty>0&&h.cost>0&&h.price>0){ tMv+=h.price*h.qty; tCost+=h.cost*h.qty; cnt++; }
+      });
+      if(!cnt) return;
+      tMv=Math.round(tMv); tCost=Math.round(tCost);
+      var tUpl=tMv-tCost, tPct=tCost>0?(tUpl/tCost*100):null;
+      var sign=(tUpl>=0?'+':'−'), cls=(tUpl>=0?'pl-pos':'pl-neg');
+      var tr=document.createElement('tr');
+      tr.style.cssText='background:var(--surface);font-weight:700';
+      tr.innerHTML='<td colspan="11" style="text-align:left">合計（'+cnt+' 檔·成本 '+tCost.toLocaleString('en-US')+'）</td>'
+        +'<td class="num">'+tMv.toLocaleString('en-US')+'</td>'
+        +'<td class="num '+cls+'">'+sign+Math.abs(tUpl).toLocaleString('en-US')+'</td>'
+        +'<td class="num '+cls+'">'+(tPct==null?'—':(tPct>=0?'+':'')+tPct.toFixed(2)+'%')+'</td><td></td>';
+      tb.appendChild(tr);
+    })();
     tb.querySelectorAll('input').forEach(function(inp){
       inp.addEventListener('change',function(){
         var h=state.holdings[+inp.dataset.i], f=inp.dataset.f;
