@@ -1,8 +1,8 @@
 {
  "updated_at": "2026-08-03",
- "realized_total": -82904,
+ "realized_total": -84615,
  "dividends_received_total": 4250,
- "total_with_dividends": -69604,
+ "total_with_dividends": -71315,
  "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
  "trades": [
   {
@@ -80,6 +80,16 @@
    "realized": null,
    "note": "含手續費 161，成本 113,161",
    "seq": 8
+  },
+  {
+   "date": "2026-08-05",
+   "stock": "3231 緯創",
+   "action": "賣出（現股當沖）",
+   "qty": 2000,
+   "price": 197.0,
+   "realized": -1711,
+   "note": "當沖：買進金額 394,561／賣出金額 392,850（券商試算）；買賣同價，虧損＝手續費+證交稅（當沖稅減半）",
+   "seq": 9
   }
  ],
  "dividends": [
