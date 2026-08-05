@@ -268,7 +268,7 @@
       <table id="holdTbl">
         <thead>
           <tr>
-            <th>代號／名稱</th><th>股數</th><th>成本</th><th>昨收</th><th>現價</th>
+            <th>代號／名稱</th><th>股數</th><th>成本</th><th>現價</th>
             <th>量比</th><th>5 日線</th><th>20 日線</th><th>自訂停損價</th><th>自訂停利價</th><th>今日漲跌</th><th>市值</th><th>未實現損益</th><th>報酬率</th><th></th>
           </tr>
         </thead>
@@ -574,15 +574,20 @@
       if(!(h.cost>0&&h.price>0)) return;
       var nm=h.name||'（未命名）', L=levelsFor(h);
       var pl=(h.price-h.cost)/h.cost*100;
-      if(L.sl!=null&&h.price<=L.sl) list.push({kind:'停損', profit:false, text:nm+' 現價 '+fmt(h.price)+' 已觸停損價 '+fmt(L.sl)+(L.slCustom?'（自訂）':'')+'（損益 '+pl.toFixed(1)+'%）'});
+      /* 警示一律「金額＋百分比」並列：百分比看幅度、金額看實際衝擊，光看%無法判斷該不該動 */
+      function amt(v){ return (v>=0?'+':'−')+Math.abs(Math.round(v)).toLocaleString('en-US'); }
+      var plAmt=(h.qty>0)?amt((h.price-h.cost)*h.qty):null;
+      function pnl(p){ return '（損益 '+(plAmt?plAmt+'／':'')+(p>=0?'+':'')+p.toFixed(1)+'%）'; }
+      if(L.sl!=null&&h.price<=L.sl) list.push({kind:'停損', profit:false, text:nm+' 現價 '+fmt(h.price)+' 已觸停損價 '+fmt(L.sl)+(L.slCustom?'（自訂）':'')+pnl(pl)});
       if(h.ma20&&h.price<h.ma20){
         var ec=effCostOf(h), epl=(ec>0)?(h.price-ec)/ec*100:null;
+        var ecAmt=(ec>0&&h.qty>0)?amt((h.price-ec)*h.qty):null;
         var lbl=(L.divAdj?'含息成本':'成本');
-        if(ec>0&&h.price>ec) list.push({kind:'破線警戒', profit:false, soft:true, text:nm+' 跌破 20 日線（'+fmt(h.ma20)+'）但仍在'+lbl+'上（+'+epl.toFixed(1)+'%）——考慮減碼'});
-        else list.push({kind:'破線', profit:false, text:nm+' 跌破 20 日線（'+fmt(h.ma20)+'）'+(ec>0?'且跌破'+lbl+'（'+epl.toFixed(1)+'%）':'')+'——出場'});
+        if(ec>0&&h.price>ec) list.push({kind:'破線警戒', profit:false, soft:true, text:nm+' 跌破 20 日線（'+fmt(h.ma20)+'）但仍在'+lbl+'上（'+(ecAmt?ecAmt+'／':'')+'+'+epl.toFixed(1)+'%）——考慮減碼'});
+        else list.push({kind:'破線', profit:false, text:nm+' 跌破 20 日線（'+fmt(h.ma20)+'）'+(ec>0?'且跌破'+lbl+'（'+(ecAmt?ecAmt+'／':'')+epl.toFixed(1)+'%）':'')+'——出場'});
       }
-      if(L.tp2!=null&&h.price>=L.tp2) list.push({kind:'停利', profit:true, text:nm+' 現價 '+fmt(h.price)+' 已達出場價 '+fmt(L.tp2)+'（損益 +'+pl.toFixed(1)+'%）'});
-      else if(L.tp1!=null&&h.price>=L.tp1) list.push({kind:'停利', profit:true, text:nm+' 現價 '+fmt(h.price)+' 已達停利價 '+fmt(L.tp1)+(L.tpCustom?'（自訂）':'')+'（損益 +'+pl.toFixed(1)+'%）'});
+      if(L.tp2!=null&&h.price>=L.tp2) list.push({kind:'停利', profit:true, text:nm+' 現價 '+fmt(h.price)+' 已達出場價 '+fmt(L.tp2)+pnl(pl)});
+      else if(L.tp1!=null&&h.price>=L.tp1) list.push({kind:'停利', profit:true, text:nm+' 現價 '+fmt(h.price)+' 已達停利價 '+fmt(L.tp1)+(L.tpCustom?'（自訂）':'')+pnl(pl)});
     });
     return list;
   }
@@ -644,7 +649,9 @@
     if(!(d>0)||!(h.qty>0)) return h.cost;
     return h.cost - d/h.qty;
   }
-  var FIELDS=[['name','name'],['qty','num'],['cost','num'],['prev','num'],['price','num'],['vol','num'],['ma5','num'],['ma20','num'],['slp','num'],['tpp','num']];
+  /* 昨收(prev)不再顯示為可編輯欄——它由 data.json／live.json 自動帶入，只用來算「今日漲跌」，
+     使用者不需要也不該手改。資料仍保留在 state.holdings.prev。 */
+  var FIELDS=[['name','name'],['qty','num'],['cost','num'],['price','num'],['vol','num'],['ma5','num'],['ma20','num'],['slp','num'],['tpp','num']];
   function levelsFor(h){
     var S=state.settings, has=(h.cost>0), base=effCostOf(h);
     return {
@@ -688,7 +695,7 @@
       var sign=(tUpl>=0?'+':'−'), cls=(tUpl>=0?'pl-pos':'pl-neg');
       var tr=document.createElement('tr');
       tr.style.cssText='background:var(--surface);font-weight:700';
-      tr.innerHTML='<td colspan="11" style="text-align:left">合計（'+cnt+' 檔·成本 '+tCost.toLocaleString('en-US')+'）</td>'
+      tr.innerHTML='<td colspan="10" style="text-align:left">合計（'+cnt+' 檔·成本 '+tCost.toLocaleString('en-US')+'）</td>'
         +'<td class="num">'+tMv.toLocaleString('en-US')+'</td>'
         +'<td class="num '+cls+'">'+sign+Math.abs(tUpl).toLocaleString('en-US')+'</td>'
         +'<td class="num '+cls+'">'+(tPct==null?'—':(tPct>=0?'+':'')+tPct.toFixed(2)+'%')+'</td><td></td>';
