@@ -1,117 +1,124 @@
 {
- "updated_at": "2026-08-03",
- "realized_total": -84437,
- "dividends_received_total": 4250,
- "total_with_dividends": -71137,
- "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
- "trades": [
-  {
-   "date": "2026-07-24",
-   "stock": "3481 群創",
-   "action": "賣出",
-   "qty": 2000,
-   "price": 49.7,
-   "realized": -33527,
-   "seq": 1
-  },
-  {
-   "date": "2026-07-24",
-   "stock": "009816 凱基台灣TOP50",
-   "action": "賣出",
-   "qty": 2000,
-   "price": 14.99,
-   "realized": 17,
-   "seq": 2
-  },
-  {
-   "date": "2026-07-30",
-   "stock": "009816 凱基台灣TOP50",
-   "action": "賣出",
-   "qty": 18000,
-   "price": "10,000股@13.16＋8,000股@13.48",
-   "realized": -30139,
-   "seq": 3
-  },
-  {
-   "date": "2026-07-30",
-   "stock": "0056 元大高股息",
-   "action": "賣出",
-   "qty": 3000,
-   "price": 46.01,
-   "realized": -14079,
-   "seq": 4
-  },
-  {
-   "date": "2026-08-03",
-   "stock": "2303 聯電",
-   "action": "買進",
-   "qty": 1000,
-   "price": 121,
-   "realized": null,
-   "note": "含手續費 172，成本 121,172",
-   "seq": 5
-  },
-  {
-   "date": "2026-08-03",
-   "stock": "2891 中信金",
-   "action": "賣出",
-   "qty": 1000,
-   "price": 65,
-   "realized": -1981,
-   "note": "已核對",
-   "seq": 6
-  },
-  {
-   "date": "2026-08-03",
-   "stock": "2303 聯電",
-   "action": "賣出（現股當沖）",
-   "qty": 1000,
-   "price": 118.5,
-   "realized": -3017,
-   "note": "當沖：成本 121,172（買 121＋手續費 172）／實收 118,155（手續費 168＋當沖證交稅 177，稅率減半）",
-   "seq": 7
-  },
-  {
-   "date": "2026-08-04",
-   "stock": "2337 旺宏",
-   "action": "買進",
-   "qty": 1000,
-   "price": 113,
-   "realized": null,
-   "note": "含手續費 161，成本 113,161",
-   "seq": 8
-  },
-  {
-   "date": "2026-08-05",
-   "stock": "3231 緯創",
-   "action": "賣出（現股當沖）",
-   "qty": 2000,
-   "price": 197.0,
-   "realized": -1711,
-   "note": "當沖：買進金額 394,561／賣出金額 392,850（券商試算）；買賣同價，虧損＝手續費+證交稅（當沖稅減半）",
-   "seq": 9
-  }
- ],
- "dividends": [
-  {
-   "stock": "2881 富邦金",
-   "amount": 4250,
-   "status": "已入帳",
-   "date": "2026-07-31"
-  },
-  {
-   "stock": "2891 中信金",
-   "amount": 5000,
-   "status": "待領",
-   "pay_date": "2026-08-07"
-  },
-  {
-   "stock": "0056 元大高股息",
-   "amount": 4050,
-   "status": "待領",
-   "pay_date": "約 2026-08"
-  }
- ],
- "dividends_pending_total": 9050,
- "cost_basis_source": "2026/07/31 券商對帳單（Notion 股價快取頁）＋後續交易逐筆計入"
+    "updated_at": "2026-08-05",
+    "realized_total": -84437,
+    "dividends_received_total": 4250,
+    "total_with_dividends": -66137,
+    "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
+    "trades": [
+        {
+            "date": "2026-07-24",
+            "stock": "3481 群創",
+            "action": "賣出",
+            "qty": 2000,
+            "price": 49.7,
+            "realized": -33527,
+            "seq": 1
+        },
+        {
+            "date": "2026-07-24",
+            "stock": "009816 凱基台灣TOP50",
+            "action": "賣出",
+            "qty": 2000,
+            "price": 14.99,
+            "realized": 17,
+            "seq": 2
+        },
+        {
+            "date": "2026-07-30",
+            "stock": "009816 凱基台灣TOP50",
+            "action": "賣出",
+            "qty": 18000,
+            "price": "10,000股@13.16＋8,000股@13.48",
+            "realized": -30139,
+            "seq": 3
+        },
+        {
+            "date": "2026-07-30",
+            "stock": "0056 元大高股息",
+            "action": "賣出",
+            "qty": 3000,
+            "price": 46.01,
+            "realized": -14079,
+            "seq": 4
+        },
+        {
+            "date": "2026-08-03",
+            "stock": "2303 聯電",
+            "action": "買進",
+            "qty": 1000,
+            "price": 121,
+            "realized": null,
+            "note": "含手續費 172，成本 121,172",
+            "seq": 5
+        },
+        {
+            "date": "2026-08-03",
+            "stock": "2891 中信金",
+            "action": "賣出",
+            "qty": 1000,
+            "price": 65,
+            "realized": -1981,
+            "note": "已核對",
+            "seq": 6
+        },
+        {
+            "date": "2026-08-03",
+            "stock": "2303 聯電",
+            "action": "賣出（現股當沖）",
+            "qty": 1000,
+            "price": 118.5,
+            "realized": -3017,
+            "note": "當沖：成本 121,172（買 121＋手續費 172）／實收 118,155（手續費 168＋當沖證交稅 177，稅率減半）",
+            "seq": 7
+        },
+        {
+            "date": "2026-08-04",
+            "stock": "2337 旺宏",
+            "action": "買進",
+            "qty": 1000,
+            "price": 113,
+            "realized": null,
+            "note": "含手續費 161，成本 113,161",
+            "seq": 8
+        },
+        {
+            "date": "2026-08-05",
+            "stock": "3231 緯創",
+            "action": "賣出（現股當沖）",
+            "qty": 2000,
+            "price": 197.0,
+            "realized": -1711,
+            "note": "當沖：買進金額 394,561／賣出金額 392,850（券商試算）；買賣同價，虧損＝手續費+證交稅（當沖稅減半）",
+            "seq": 9
+        }
+    ],
+    "dividends": [
+        {
+            "stock": "2881 富邦金",
+            "amount": 4250,
+            "status": "已入帳",
+            "date": "2026-07-31"
+        },
+        {
+            "stock": "2891 中信金",
+            "amount": 5000,
+            "status": "待領",
+            "pay_date": "2026-08-07"
+        },
+        {
+            "stock": "0056 元大高股息",
+            "amount": 4050,
+            "status": "待領",
+            "pay_date": "約 2026-08"
+        },
+        {
+            "stock": "2887 台新新光金",
+            "amount": 5000,
+            "status": "待領",
+            "pay_date": "2026-08-19（二手來源交叉比對，非官方原文）",
+            "note": "現金 1.0 元×5,000股＝5,000；另配股率 1%＝50 股，新股撥發約與現金同期（8月中下旬），8/5 尚未入帳屬正常。2026-08-05 補登，先前漏列。"
+        }
+    ],
+    "dividends_pending_total": 14050,
+    "cost_basis_source": "2026/07/31 券商對帳單（Notion 股價快取頁）＋後續交易逐筆計入"
 }
