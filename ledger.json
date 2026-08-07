@@ -1,8 +1,8 @@
 {
     "updated_at": "2026-08-07",
-    "realized_total": -86641,
+    "realized_total": -77346,
     "dividends_received_total": 4240,
-    "total_with_dividends": -68381,
+    "total_with_dividends": -59086,
     "note": "realized_total＝買賣價差含稅費；total_with_dividends＝realized_total＋股息（已入帳＋待領）。稅費規則：ETF 證交稅 0.1%、個股 0.3%、手續費 0.1425%，皆捨去到元。",
     "trades": [
         {
@@ -92,6 +92,16 @@
             "seq": 9
         },
         {
+            "date": "2026-08-06",
+            "stock": "2337 旺宏",
+            "action": "賣出",
+            "qty": 1000,
+            "price": 123.0,
+            "realized": 9295,
+            "note": "FIFO：8/4 買進 1,000股成本 113,161；實收 122,456（123,000−手續費175−證交稅369）→ +9,295。2026-08-07 補登，先前漏登。",
+            "seq": 10
+        },
+        {
             "date": "2026-08-07",
             "stock": "5871 中租-KY",
             "action": "買進",
@@ -99,7 +109,7 @@
             "price": 109.5,
             "realized": null,
             "note": "含手續費 156，成本 109,656（均價 109.656）",
-            "seq": 10
+            "seq": 11
         }
     ],
     "dividends": [

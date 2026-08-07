@@ -390,7 +390,6 @@
       {name:'2883 凱基金',        qty:1000, cost:30.293, prev:30.85, price:30.85,  vol:2.03, ma5:29.85, ma20:29.94, slp:28.78, tpp:null},
       {name:'009816 凱基台灣TOP50', qty:5000, cost:14.5106, prev:14.65, price:14.65,  vol:1.03, ma5:14.01, ma20:14.8, slp:13.79, tpp:null},
       {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:null},
-      {name:'2337 旺宏',          qty:1000, cost:113.161, prev:120.0, price:126.50, vol:null, ma5:null,  ma20:null,  slp:113.52, tpp:null},
       {name:'5871 中租-KY',       qty:1000, cost:109.656, prev:109.0, price:109.00, vol:null, ma5:null,  ma20:null,  slp:104.2, tpp:null}
     ],
     watchlist:[
@@ -434,7 +433,7 @@
   /* seedVer 4（2026-08-05）：repo 種子＝唯一真相源——股數/成本/停損線/停利線全量同步進舊 localStorage。
      成本改 FIFO（2891 66.695→65.593）、2887 線修正 32.4→31.6、2337 補 B 類線 105.6。
      沒有這段，種子改了但老瀏覽器永遠用舊值。 */
-  if((state.seedVer||0) < 6){
+  if((state.seedVer||0) < 7){
     DEFAULTS.holdings.forEach(function(dh){
       var code=dh.name.split(' ')[0];
       var found=false;
@@ -443,7 +442,12 @@
       });
       if(!found) state.holdings.push(JSON.parse(JSON.stringify(dh)));   /* 種子新增的持股要進得來 */
     });
-    state.seedVer=6;
+    /* 已出清的部位：只刪這份明確清單，不做「不在種子就刪」的全域清除，
+       以免誤刪使用者自己在瀏覽器加的觀察部位。 */
+    ['2337'].forEach(function(code){
+      state.holdings=state.holdings.filter(function(h){ return (h.name||'').split(' ')[0]!==code; });
+    });
+    state.seedVer=7;
     try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
   }
   if((state.holdVer||0) < 3){
