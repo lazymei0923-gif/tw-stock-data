@@ -1,5 +1,5 @@
 {
-    "updated_at": "2026-08-05",
+    "updated_at": "2026-08-07",
     "realized_total": -86641,
     "dividends_received_total": 4240,
     "total_with_dividends": -68381,
@@ -90,6 +90,16 @@
             "realized": -1711,
             "note": "當沖：買進金額 394,561／賣出金額 392,850（券商試算）；買賣同價，虧損＝手續費+證交稅（當沖稅減半）",
             "seq": 9
+        },
+        {
+            "date": "2026-08-07",
+            "stock": "5871 中租-KY",
+            "action": "買進",
+            "qty": 1000,
+            "price": 109.5,
+            "realized": null,
+            "note": "含手續費 156，成本 109,656（均價 109.656）",
+            "seq": 10
         }
     ],
     "dividends": [
