@@ -384,13 +384,12 @@
       {id:'kospi',name:'KOSPI',    val:6595.45,  chg:17.91}
     ],
     holdings:[
-      {name:'2881 富邦金',        qty:1000, cost:124.677, prev:130.0, price:130.00, vol:1.54, ma5:126.5, ma20:125.42, slp:118.4, tpp:null},
       {name:'2887 台新新光金',    qty:5000, cost:29.592, prev:35.55, price:35.90,  vol:1.57, ma5:34.12, ma20:34.94, slp:31.6,  tpp:null},
       {name:'2891 中信金',        qty:2000, cost:65.593,  prev:64.9,  price:65,     vol:1.32, ma5:63.08, ma20:65.21, slp:60.7,  tpp:null},
       {name:'2883 凱基金',        qty:1000, cost:30.293, prev:30.85, price:30.85,  vol:2.03, ma5:29.85, ma20:29.94, slp:28.78, tpp:null},
       {name:'009816 凱基台灣TOP50', qty:5000, cost:14.5106, prev:14.65, price:14.65,  vol:1.03, ma5:14.01, ma20:14.8, slp:13.79, tpp:null},
       {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:49.48, price:49.48,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.62, tpp:null},
-      {name:'5871 中租-KY',       qty:1000, cost:109.656, prev:109.0, price:109.00, vol:null, ma5:null,  ma20:null,  slp:104.2, tpp:null}
+      {name:'5871 中租-KY',       qty:2000, cost:111.158, prev:109.0, price:112.50, vol:null, ma5:null,  ma20:null,  slp:105.6, tpp:null}
     ],
     watchlist:[
       {name:'2303 聯電'},
@@ -433,7 +432,7 @@
   /* seedVer 4（2026-08-05）：repo 種子＝唯一真相源——股數/成本/停損線/停利線全量同步進舊 localStorage。
      成本改 FIFO（2891 66.695→65.593）、2887 線修正 32.4→31.6、2337 補 B 類線 105.6。
      沒有這段，種子改了但老瀏覽器永遠用舊值。 */
-  if((state.seedVer||0) < 7){
+  if((state.seedVer||0) < 8){
     DEFAULTS.holdings.forEach(function(dh){
       var code=dh.name.split(' ')[0];
       var found=false;
@@ -444,10 +443,10 @@
     });
     /* 已出清的部位：只刪這份明確清單，不做「不在種子就刪」的全域清除，
        以免誤刪使用者自己在瀏覽器加的觀察部位。 */
-    ['2337'].forEach(function(code){
+    ['2337','2881'].forEach(function(code){
       state.holdings=state.holdings.filter(function(h){ return (h.name||'').split(' ')[0]!==code; });
     });
-    state.seedVer=7;
+    state.seedVer=8;
     try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
   }
   if((state.holdVer||0) < 3){
