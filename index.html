@@ -957,7 +957,7 @@
         var cls=(pr.realized>=0?'pl-pos':'pl-neg');
         return '<tr><td class="num">'+esc(pr.date||'')+'</td><td style="text-align:left">'+esc(pr.stock||'')+'</td>'
           +'<td class="num">'+Number(pr.qty||0).toLocaleString('en-US')+'</td>'
-          +'<td class="num">'+esc(String(pr.buy==null?'?':pr.buy))+' → '+esc(String(pr.sell==null?'?':pr.sell))+'</td>'
+          +'<td class="num">'+esc(String(pr.buy==null?'—':pr.buy))+' → '+esc(String(pr.sell==null?'?':pr.sell))+'</td>'
           +'<td class="num '+cls+'">'+(pr.realized==null?'—':money(pr.realized))+'</td></tr>';
       }).join(''):'<tr><td colspan="5" style="text-align:left;color:var(--sub)">尚無當沖。</td></tr>';
       var w=plist.filter(function(p){return p.realized>0;}).length, l=plist.filter(function(p){return p.realized<0;}).length;
