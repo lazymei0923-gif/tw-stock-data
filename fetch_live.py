@@ -6,10 +6,10 @@ worktree 在 ~/tw-stock-data-live（live 分支，orphan、只有 live.json）�
 import json, datetime, subprocess, sys, urllib.request
 from zoneinfo import ZoneInfo
 
-STOCKS = ["2881", "2887", "2891", "2883", "009816", "0056",
-          "2303", "2337", "00631L", "3231",
-          "2330", "3711", "6239", "3037", "8046", "3189", "6669", "2356", "3693"]  # 持股／觀察／AMD 供應鏈
-OTC = {"3693"}  # STOCKS 中的上櫃代號（MIS 要用 otc_ 前綴）
+STOCKS = ["0056", "8091", "6770", "2344", "6834",
+          "2881", "2887", "2891", "2883", "009816", "5871", "2303", "2337", "3231",
+          "2330", "3711", "6239", "3037", "8046", "3189", "6669", "2356", "3693"]  # 持股(前5)／近期進出與觀察／AMD 供應鏈
+OTC = {"3693", "8091"}  # STOCKS 中的上櫃代號（MIS 要用 otc_ 前綴）
 WORKTREE = "/Users/lazymei/tw-stock-data-live"
 
 now = datetime.datetime.now(ZoneInfo("Asia/Taipei"))
