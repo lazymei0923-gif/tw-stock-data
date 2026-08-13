@@ -221,7 +221,14 @@
     </div>
     <div class="tbl-wrap">
       <table id="tradeTbl">
-        <thead><tr><th>日期</th><th style="text-align:left">標的</th><th>動作</th><th>股數</th><th style="text-align:left">成交價</th><th>已實現損益</th><th style="text-align:left">備註</th></tr></thead>
+        <thead><tr><th style="text-align:left">標的</th><th>筆數</th><th>買進股數</th><th>賣出股數</th><th>已實現小計</th><th style="text-align:left">最後交易</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p style="margin:14px 0 0;font-weight:700;font-size:14px">當沖戰績 <span id="dtMeta" style="font-weight:400;color:var(--sub);font-size:12px"></span></p>
+    <div class="tbl-wrap" style="margin-top:6px">
+      <table id="dayTradeTbl" style="min-width:0">
+        <thead><tr><th>日期</th><th style="text-align:left">標的</th><th>股數</th><th>買→賣</th><th>已實現</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -927,25 +934,81 @@
   }
   function renderTrades(lg){
     var tb=document.querySelector('#tradeTbl tbody'); if(!tb) return;
-    // 依時間先後（舊 → 新）；同日以帳本 seq 保持實際成交順序
     var trades=(lg.trades||[]).slice().sort(function(a,b){
       var d=(a.date||'').localeCompare(b.date||'');
       return d!==0?d:((a.seq||0)-(b.seq||0));
     });
-    tb.innerHTML = trades.length ? trades.map(function(t){
-      var r=t.realized, cls=(r==null)?'':(r>=0?'pl-pos':'pl-neg');
-      var rt=(r==null)?'—':((r>=0?'+':'−')+Math.abs(r).toLocaleString('en-US'));
-      var isBuy=(t.action||'').indexOf('買')>=0;
-      return '<tr><td class="num">'+esc(t.date||'')+'</td>'
-        +'<td style="text-align:left">'+esc(t.stock||'')+'</td>'
-        +'<td><span class="chip '+(isBuy?'flat':'warn')+'">'+esc(t.action||'')+'</span></td>'
-        +'<td class="num">'+(t.qty!=null?Number(t.qty).toLocaleString('en-US'):'—')+'</td>'
-        +'<td style="text-align:left" class="num">'+esc(String(t.price==null?'—':t.price))+'</td>'
-        +'<td class="num '+cls+'">'+rt+'</td>'
-        +'<td style="text-align:left;white-space:normal;color:var(--sub);font-size:12px">'+esc(t.note||'')+'</td></tr>';
-    }).join('') : '<tr><td colspan="7" style="text-align:left;color:var(--sub)">尚無交易紀錄。</td></tr>';
+    function money(v){ return (v>=0?'+':'−')+Math.abs(v).toLocaleString('en-US'); }
+    /* 當沖＝同日同標的且任一腳的 action 含「當沖」；買賣兩腳配成一列 */
+    var dtKey={}; trades.forEach(function(t){ if((t.action||'').indexOf('當沖')>=0) dtKey[t.date+'|'+t.stock]=1; });
+    var dayLegs=trades.filter(function(t){ return dtKey[t.date+'|'+t.stock]; });
+    var rest=trades.filter(function(t){ return !dtKey[t.date+'|'+t.stock]; });
+    /* ── 當沖表 ── */
+    var pairs={};
+    dayLegs.forEach(function(t){
+      var k=t.date+'|'+t.stock; pairs[k]=pairs[k]||{date:t.date,stock:t.stock,qty:0};
+      if((t.action||'').indexOf('買')>=0){ pairs[k].buy=t.price; pairs[k].qty=t.qty; }
+      else { pairs[k].sell=t.price; pairs[k].realized=t.realized; if(!pairs[k].qty) pairs[k].qty=t.qty; }
+    });
+    var plist=Object.keys(pairs).map(function(k){return pairs[k];}).sort(function(a,b){return b.date.localeCompare(a.date);});
+    var dtb=document.querySelector('#dayTradeTbl tbody');
+    if(dtb){
+      dtb.innerHTML=plist.length?plist.map(function(pr){
+        var cls=(pr.realized>=0?'pl-pos':'pl-neg');
+        return '<tr><td class="num">'+esc(pr.date||'')+'</td><td style="text-align:left">'+esc(pr.stock||'')+'</td>'
+          +'<td class="num">'+Number(pr.qty||0).toLocaleString('en-US')+'</td>'
+          +'<td class="num">'+esc(String(pr.buy==null?'?':pr.buy))+' → '+esc(String(pr.sell==null?'?':pr.sell))+'</td>'
+          +'<td class="num '+cls+'">'+(pr.realized==null?'—':money(pr.realized))+'</td></tr>';
+      }).join(''):'<tr><td colspan="5" style="text-align:left;color:var(--sub)">尚無當沖。</td></tr>';
+      var w=plist.filter(function(p){return p.realized>0;}).length, l=plist.filter(function(p){return p.realized<0;}).length;
+      var sum=plist.reduce(function(a,p){return a+(p.realized||0);},0);
+      var dm=document.getElementById('dtMeta'); if(dm) dm.textContent=w+'勝'+l+'敗｜累計 '+money(sum);
+    }
+    /* ── 主表：每檔彙總，點列展開逐筆 ── */
+    var groups={}, order=[];
+    rest.forEach(function(t){
+      var k=t.stock; if(!groups[k]){ groups[k]={stock:k,n:0,buyQ:0,sellQ:0,realized:0,hasR:false,last:'',rows:[]}; order.push(k); }
+      var g=groups[k]; g.n++; g.rows.push(t);
+      if((t.action||'').indexOf('買')>=0) g.buyQ+=(t.qty||0); else g.sellQ+=(t.qty||0);
+      if(t.realized!=null){ g.realized+=t.realized; g.hasR=true; }
+      if(t.date>g.last) g.last=t.date;
+    });
+    order.sort(function(a,b){ return groups[b].last.localeCompare(groups[a].last); });
+    tb.innerHTML='';
+    order.forEach(function(k,gi){
+      var g=groups[k], cls=g.hasR?(g.realized>=0?'pl-pos':'pl-neg'):'';
+      var tr=document.createElement('tr');
+      tr.style.cursor='pointer';
+      tr.innerHTML='<td style="text-align:left;font-weight:600">'+esc(g.stock)+'</td>'
+        +'<td class="num">'+g.n+'</td>'
+        +'<td class="num">'+(g.buyQ?g.buyQ.toLocaleString('en-US'):'—')+'</td>'
+        +'<td class="num">'+(g.sellQ?g.sellQ.toLocaleString('en-US'):'—')+'</td>'
+        +'<td class="num '+cls+'" style="font-weight:700">'+(g.hasR?money(g.realized):'—')+'</td>'
+        +'<td style="text-align:left" class="num">'+esc(g.last)+'</td>'
+        +'<td style="color:var(--sub)" data-arrow>▸</td>';
+      tb.appendChild(tr);
+      var det=document.createElement('tr'); det.style.display='none';
+      var inner=g.rows.map(function(t){
+        var r=t.realized, rc=(r==null)?'':(r>=0?'pl-pos':'pl-neg');
+        return '<div style="padding:4px 0;border-bottom:1px dashed var(--line)">'
+          +'<span class="num">'+esc(t.date)+'</span>｜'+esc(t.action)+'｜'
+          +Number(t.qty||0).toLocaleString('en-US')+'股 @'+esc(String(t.price))+'｜'
+          +'<span class="'+rc+'">'+(r==null?'—':money(r))+'</span>'
+          +(t.broker?'｜<span style="color:var(--sub);font-size:12px">'+esc(t.broker)+'</span>':'')
+          +(t.note?'<div style="color:var(--sub);font-size:12px;white-space:normal">'+esc(t.note)+'</div>':'')
+          +'</div>';
+      }).join('');
+      det.innerHTML='<td colspan="7" style="text-align:left;background:var(--surface)">'+inner+'</td>';
+      tb.appendChild(det);
+      tr.addEventListener('click',function(){
+        var open=det.style.display!=='none';
+        det.style.display=open?'none':'';
+        tr.querySelector('[data-arrow]').textContent=open?'▸':'▾';
+      });
+    });
+    if(!order.length) tb.innerHTML='<tr><td colspan="7" style="text-align:left;color:var(--sub)">尚無交易紀錄。</td></tr>';
     var nSell=trades.filter(function(t){return (t.action||'').indexOf('賣')>=0;}).length;
-    document.getElementById('tradeMeta').textContent=trades.length+' 筆交易（'+nSell+' 賣／'+(trades.length-nSell)+' 買）｜已實現合計 '+((lg.realized_total||0)>=0?'+':'−')+Math.abs(lg.realized_total||0).toLocaleString('en-US');
+    document.getElementById('tradeMeta').textContent=trades.length+' 筆交易（'+nSell+' 賣／'+(trades.length-nSell)+' 買）｜已實現合計 '+money(lg.realized_total||0)+'｜點標的展開逐筆';
 
     var db=document.querySelector('#divTbl tbody'); if(!db) return;
     var divs=(lg.dividends||[]);
