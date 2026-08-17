@@ -392,9 +392,6 @@
     ],
     holdings:[
       {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:52.7, price:53.00,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.64, tpp:null},
-      {name:'8091 翔名',          qty:1000, cost:241.575, prev:233.0, price:233.0, vol:null, ma5:null, ma20:null, slp:229.5, tpp:null},
-      {name:'6770 力積電',        qty:1000, cost:75.173,  prev:73.7, price:74.9,  vol:null, ma5:null, ma20:null, slp:71.41, tpp:null},
-      {name:'2344 華邦電',        qty:1000, cost:180.056, prev:177.0, price:177.0, vol:null, ma5:null, ma20:null, slp:171.05, tpp:null},
       {name:'6834 天二科技',      qty:1000, cost:109.034, prev:107.0, price:107.5, vol:null, ma5:null, ma20:null, slp:103.6, tpp:null}
     ],
     watchlist:[
@@ -438,7 +435,7 @@
   /* seedVer 4（2026-08-05）：repo 種子＝唯一真相源——股數/成本/停損線/停利線全量同步進舊 localStorage。
      成本改 FIFO（2891 66.695→65.593）、2887 線修正 32.4→31.6、2337 補 B 類線 105.6。
      沒有這段，種子改了但老瀏覽器永遠用舊值。 */
-  if((state.seedVer||0) < 11){
+  if((state.seedVer||0) < 12){
     DEFAULTS.holdings.forEach(function(dh){
       var code=dh.name.split(' ')[0];
       var found=false;
@@ -449,10 +446,10 @@
     });
     /* 已出清的部位：只刪這份明確清單，不做「不在種子就刪」的全域清除，
        以免誤刪使用者自己在瀏覽器加的觀察部位。 */
-    ['2337','2881','2883','2887','2891','009816','5871'].forEach(function(code){
+    ['2337','2881','2883','2887','2891','009816','5871','8091','6770','2344','6834'].forEach(function(code){
       state.holdings=state.holdings.filter(function(h){ return (h.name||'').split(' ')[0]!==code; });
     });
-    state.seedVer=11;
+    state.seedVer=12;
     try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
   }
   if((state.holdVer||0) < 3){
