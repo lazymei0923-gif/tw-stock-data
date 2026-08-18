@@ -391,7 +391,7 @@
       {id:'kospi',name:'KOSPI',    val:6595.45,  chg:17.91}
     ],
     holdings:[
-      {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:52.7, price:53.00,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.64, tpp:null}
+      {name:'0056 元大高股息',    qty:2000, cost:49.0695, prev:52.7, price:53.00,  vol:1.11, ma5:48.14, ma20:50.79, slp:46.99, tpp:null}
     ],
     watchlist:[
       {name:'2303 聯電'},
@@ -434,7 +434,7 @@
   /* seedVer 4（2026-08-05）：repo 種子＝唯一真相源——股數/成本/停損線/停利線全量同步進舊 localStorage。
      成本改 FIFO（2891 66.695→65.593）、2887 線修正 32.4→31.6、2337 補 B 類線 105.6。
      沒有這段，種子改了但老瀏覽器永遠用舊值。 */
-  if((state.seedVer||0) < 12){
+  if((state.seedVer||0) < 13){
     DEFAULTS.holdings.forEach(function(dh){
       var code=dh.name.split(' ')[0];
       var found=false;
@@ -448,7 +448,7 @@
     ['2337','2881','2883','2887','2891','009816','5871','8091','6770','2344','6834'].forEach(function(code){
       state.holdings=state.holdings.filter(function(h){ return (h.name||'').split(' ')[0]!==code; });
     });
-    state.seedVer=12;
+    state.seedVer=13;
     try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
   }
   if((state.holdVer||0) < 3){
