@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-17",
+  "updated_at": "2026-08-19",
   "realized_total": -60137,
   "dividends_received_total": 13290,
   "total_with_dividends": -41847,
@@ -382,7 +382,8 @@
       "status": "待領",
       "note": "現金 1.0元×股。配股率1%＝50股（零股），新股上市日 2026-08-19 與現金發放日同日（來源：富邦證券個股行事曆 zci_2887）。原股已全數賣出並以全額成本結算，故此50股為零成本部位。",
       "stock_dividend_shares": 50,
-      "stock_dividend_listing_date": "2026-08-19"
+      "stock_dividend_listing_date": "2026-08-19",
+      "stock_dividend_status": "已入帳（8/19 撥發，使用者確認 50 股已進庫存）"
     }
   ],
   "dividends_pending_total": 5000,
